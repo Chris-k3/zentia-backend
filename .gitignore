@@ -31,3 +31,6 @@ build/
 
 ### VS Code ###
 .vscode/
+
+# Repositorio Spring Boot anidado conservado como respaldo local
+/zentia/
