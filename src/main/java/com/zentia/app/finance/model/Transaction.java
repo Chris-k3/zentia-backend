@@ -1,4 +1,4 @@
-package com.zentia.app.identity.model;
+package com.zentia.app.finance.model;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -14,6 +14,8 @@ import jakarta.persistence.Table;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+
+import com.zentia.app.identity.model.User;
 
 @Entity
 @Table(name = "transactions")

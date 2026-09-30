@@ -1,4 +1,4 @@
-package com.zentia.app.identity.model;
+package com.zentia.app.finance.model;
 
 public enum TransactionType {
     INGRESO, 
