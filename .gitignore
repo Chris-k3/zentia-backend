@@ -34,3 +34,6 @@ build/
 
 # Repositorio Spring Boot anidado conservado como respaldo local
 /zentia/
+
+bin/
+*.class
