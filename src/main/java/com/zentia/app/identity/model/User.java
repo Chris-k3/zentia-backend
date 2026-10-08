@@ -43,13 +43,7 @@ public class User {
     public User() {
     }
 
-    public User(String email, String googleId, String name, String pictureUrl) {
-        this.email = email;
-        this.googleId = googleId;
-        this.name = name;
-        this.pictureUrl = pictureUrl;
-        this.onboardingCompleted = false;
-    }
+
 
     public Long getId() {
         return id;

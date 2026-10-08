@@ -14,7 +14,7 @@ public class ZentiaApplication {
     public static void main(String[] args) {
         SpringApplication.run(ZentiaApplication.class, args);
     }
-
+/* 
     @Bean 
     public CommandLineRunner probarRepositorio(UserRepository userRepository) {
         return args -> {
@@ -35,7 +35,6 @@ public class ZentiaApplication {
                 System.out.println("Usuario encontrado por email: " + usuarioEncontrado.getEmail());
             });
             
-        };
+        };*/
 
-}
 }
