@@ -2,12 +2,15 @@ package com.zentia.app.identity.services;
 
 import org.springframework.stereotype.Service;
 
+import com.zentia.app.identity.dto.AuthResponseDTO;
+import com.zentia.app.identity.dto.GoogleAuthRequestDTO;
 import com.zentia.app.identity.dto.UserResponseDTO;
 import com.zentia.app.identity.model.User;
 import com.zentia.app.identity.repository.UserRepository;
 import com.zentia.app.identity.security.JwtUtil;
 
 import java.util.Map;
+import java.util.Optional;
 import java.util.Random;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -21,6 +24,68 @@ public class UserService {
     public UserService(UserRepository userRepository, JwtUtil jwtUtil) {
         this.userRepository = userRepository;
         this.jwtUtil = jwtUtil;
+    }
+
+    /**
+     * Autenticación principal con Google OAuth 2.0.
+     * Si el usuario es nuevo, lo registra en la base de datos con onboardingCompleted = false.
+     * Si ya existe, actualiza sus datos de perfil (nombre/foto) y genera el Token JWT de sesión.
+     */
+    public AuthResponseDTO authenticateWithGoogle(GoogleAuthRequestDTO dto) {
+        if (dto.getGoogleId() == null || dto.getGoogleId().isBlank()) {
+            throw new IllegalArgumentException("El googleId es requerido.");
+        }
+        if (dto.getEmail() == null || dto.getEmail().isBlank()) {
+            throw new IllegalArgumentException("El email es requerido.");
+        }
+
+        // 1. Buscar si ya existe por googleId o por email
+        Optional<User> userOptional = userRepository.findByGoogleId(dto.getGoogleId());
+        if (userOptional.isEmpty()) {
+            userOptional = userRepository.findByEmail(dto.getEmail());
+        }
+
+        User user;
+        boolean isNewUser;
+
+        if (userOptional.isEmpty()) {
+            // Primer registro en Zentia
+            user = new User();
+            user.setGoogleId(dto.getGoogleId());
+            user.setEmail(dto.getEmail());
+            user.setName(dto.getName() != null && !dto.getName().isBlank() ? dto.getName() : "Usuario");
+            user.setPictureUrl(dto.getPictureUrl());
+            user.setOnboardingCompleted(false);
+
+            user = userRepository.save(user);
+            isNewUser = true;
+        } else {
+            // Usuario recurrente: sincronizar datos del perfil de Google si vienen en la petición
+            user = userOptional.get();
+            if (dto.getName() != null && !dto.getName().isBlank()) {
+                user.setName(dto.getName());
+            }
+            if (dto.getPictureUrl() != null && !dto.getPictureUrl().isBlank()) {
+                user.setPictureUrl(dto.getPictureUrl());
+            }
+            if (user.getGoogleId() == null || user.getGoogleId().isBlank()) {
+                user.setGoogleId(dto.getGoogleId());
+            }
+            user = userRepository.save(user);
+            isNewUser = false;
+        }
+
+        // Generar el Token JWT interno de Zentia
+        String token = jwtUtil.generateToken(user);
+
+        return new AuthResponseDTO(
+                token,
+                user.getId(),
+                user.getEmail(),
+                user.getName(),
+                user.isOnboardingCompleted(),
+                isNewUser
+        );
     }
 
     // Método para uso interno (usado por finanzas / validación de dominio)
