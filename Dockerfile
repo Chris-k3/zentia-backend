@@ -21,3 +21,4 @@ EXPOSE 8080
 
 # Comando de arranque de Spring Boot
 ENTRYPOINT ["java", "-jar", "app.jar"]
+
