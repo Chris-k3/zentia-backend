@@ -28,8 +28,22 @@ public class TransactionRepositoryAdapter implements TransactionRepositoryPort {
     }
 
     @Override
-    public List<Transaction> findByUserIdAndTransactionDateBetween(Long userId, LocalDateTime startDate, LocalDateTime endDate) {
+    public List<Transaction> findByUserIdAndTransactionDateBetween(Long userId, java.time.LocalDate startDate, java.time.LocalDate endDate) {
         return transactionRepository.findByUserIdAndTransactionDateBetween(userId, startDate, endDate);
     }
 
+    @Override
+    public List<Transaction> findByUserId(Long userId) {
+        return transactionRepository.findByUserId(userId);
+    }
+
+    @Override
+    public java.util.Optional<Transaction> findById(Long id) {
+        return transactionRepository.findById(id);
+    }
+
+    @Override
+    public void deleteById(Long id) {
+        transactionRepository.deleteById(id);
+    }
 }

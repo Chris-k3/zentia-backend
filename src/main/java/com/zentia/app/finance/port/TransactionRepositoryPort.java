@@ -13,8 +13,10 @@ import com.zentia.app.finance.model.Transaction;
 public interface TransactionRepositoryPort {
     //El sistema necesita guardar transacciones en la base de datos, y este método define la operación para hacerlo.
     Transaction save(Transaction transaction);
-    List<Transaction> findByUserIdAndTransactionDateBetween(Long userId, LocalDateTime startDate, LocalDateTime endDate);
-    //SELECT * FROM transaction WHERE user_id = ? AND transaction_date BETWEEN ? AND ?
-    //List = una colección que puede contener múltiples elementos, en este caso, 
-    // transacciones asociadas a un usuario específico.
+    List<Transaction> findByUserIdAndTransactionDateBetween(Long userId, java.time.LocalDate startDate, java.time.LocalDate endDate);
+    List<Transaction> findByUserId(Long userId);
+    
+    // Nuevos métodos para Actualizar y Eliminar
+    java.util.Optional<Transaction> findById(Long id);
+    void deleteById(Long id);
 }

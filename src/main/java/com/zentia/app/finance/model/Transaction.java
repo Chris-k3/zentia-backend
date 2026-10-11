@@ -39,7 +39,7 @@ public class Transaction {
     @Column(length = 255)
     private String description;
     @Column(name = "transaction_date", nullable = false)
-    private LocalDateTime transactionDate;//fecha de la transacción
+    private java.time.LocalDate transactionDate;//fecha de la transacción
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt; //cuando se creó la transacción
 
@@ -100,11 +100,11 @@ public class Transaction {
 		this.description = description;
 	}
 
-	public LocalDateTime getTransactionDate() {
+	public java.time.LocalDate getTransactionDate() {
 		return transactionDate;
 	}
 
-	public void setTransactionDate(LocalDateTime transactionDate) {
+	public void setTransactionDate(java.time.LocalDate transactionDate) {
 		this.transactionDate = transactionDate;
 	}
 

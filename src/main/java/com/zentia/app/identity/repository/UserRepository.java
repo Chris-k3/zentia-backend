@@ -6,6 +6,7 @@ import com.zentia.app.identity.model.User;
 public interface UserRepository extends JpaRepository<User, Long> {
     Optional<User> findByEmail(String email); //SELECT * FROM user WHERE email = ?
     Optional<User> findByGoogleId(String googleId); //SELECT * FROM user WHERE google_id = ?
+    Optional<User> findByPhoneNumber(String phoneNumber); //SELECT * FROM user WHERE phone_number = ?
 
     //Optional = un valor que puede estar presente o no, es decir, puede contener un valor o ser nulo.
 }

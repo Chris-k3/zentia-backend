@@ -31,7 +31,7 @@ public class RegistrarTransaccionUseCase {
 
     //El caso de Uso principal es registrar una transacción, que implica validar al usuario y la categoría,
     // y luego guardar la transacción en la base de datos.
-    public Transaction ejecutar(Long userId, Long categoryId, BigDecimal amount, String type, String description, java.time.LocalDateTime transactionDate) {
+    public Transaction ejecutar(Long userId, Long categoryId, BigDecimal amount, String type, String description, java.time.LocalDate transactionDate) {
        
         //Regla 1: monto valido obligatorio (amount > 0 and no puede ser nullo)
         if (amount == null || amount.compareTo(BigDecimal.ZERO) <= 0){
