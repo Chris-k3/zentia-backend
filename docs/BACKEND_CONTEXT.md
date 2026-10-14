@@ -8,6 +8,7 @@ financiero por rango de fechas.
 
 Este documento sirve como mapa de orientación para nuevos agentes. Describe el código que
 existe actualmente; no debe interpretarse como una lista de funcionalidades futuras.
+Facilita el no pedirle al gente leer el código nuevamente cada vez que inicias un task.
 
 ## Stack y ejecución
 
