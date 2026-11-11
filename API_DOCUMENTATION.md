@@ -135,6 +135,59 @@ Permite a un usuario existente (registrado originalmente por Google) asociar su 
 
 ---
 
+### D. Completar Onboarding / Guardar Perfil Financiero
+Persiste el ingreso mensual estimado, la meta de ahorro mensual, el gasto estimado opcional y la categoría prioritaria en la cuenta del usuario autenticado, actualizando automáticamente `onboardingCompleted = true`.
+
+*   **Método:** `POST` (también admite `PUT /api/v1/users/financial-profile`)
+*   **Ruta:** `/api/v1/users/onboarding`
+*   **Headers:** `Authorization: Bearer <TOKEN_JWT>`
+*   **Cuerpo (JSON):**
+```json
+{
+  "monthlyIncome": 25000.00,
+  "monthlySavingsGoal": 5000.00,
+  "priorityCategoryId": 1
+}
+```
+*(Opcionalmente puede enviarse `"estimatedMonthlyExpense": 15000.00`).*
+
+*   **Respuesta Exitosa (`200 OK`):**
+```json
+{
+  "userId": 1,
+  "monthlyIncome": 25000.00,
+  "monthlySavingsGoal": 5000.00,
+  "estimatedMonthlyExpense": null,
+  "priorityCategoryId": 1,
+  "priorityCategoryName": "Alimentación",
+  "onboardingCompleted": true
+}
+```
+
+---
+
+### E. Consultar Perfil Financiero
+Devuelve el ingreso mensual estimado y la meta de ahorro del usuario autenticado para alimentar las barras de progreso del Dashboard.
+
+*   **Método:** `GET`
+*   **Ruta:** `/api/v1/users/financial-profile`
+*   **Headers:** `Authorization: Bearer <TOKEN_JWT>`
+
+*   **Respuesta Exitosa (`200 OK`):**
+```json
+{
+  "userId": 1,
+  "monthlyIncome": 25000.00,
+  "monthlySavingsGoal": 5000.00,
+  "estimatedMonthlyExpense": null,
+  "priorityCategoryId": 1,
+  "priorityCategoryName": "Alimentación",
+  "onboardingCompleted": true
+}
+```
+
+---
+
 ## 🏷️ 3. Módulo de Catálogo
 
 ### A. Listar Todas las Categorías

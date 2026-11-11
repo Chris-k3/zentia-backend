@@ -14,8 +14,13 @@ import com.zentia.app.identity.model.User;
 @Component
 public class JwtUtil {
 
-    private static final String SECRET_KEY = "zentia_secret_key_financial_super_secure_jwt_token_2026";
+    private static final String DEFAULT_SECRET_KEY = "zentia_secret_key_financial_super_secure_jwt_token_2026";
     private static final long EXPIRATION_TIME_SECONDS = 86400; // 24 horas
+
+    private String getSecretKey() {
+        String envSecret = System.getenv("JWT_SECRET");
+        return (envSecret != null && !envSecret.isBlank()) ? envSecret : DEFAULT_SECRET_KEY;
+    }
 
     /**
      * Genera un token JWT estándar (RFC 7519) firmado con HMAC-SHA256
@@ -30,11 +35,13 @@ public class JwtUtil {
             // 2. Payload con claims esenciales
             long now = Instant.now().getEpochSecond();
             long exp = now + EXPIRATION_TIME_SECONDS;
+            String safeEmail = escapeJson(user.getEmail());
+            String safeName = escapeJson(user.getName() != null ? user.getName() : "Usuario");
             String payloadJson = String.format(
                     "{\"sub\":\"%s\",\"userId\":%d,\"name\":\"%s\",\"iat\":%d,\"exp\":%d}",
-                    user.getEmail(),
+                    safeEmail,
                     user.getId(),
-                    user.getName(),
+                    safeName,
                     now,
                     exp
             );
@@ -146,9 +153,14 @@ public class JwtUtil {
         return Long.parseLong(json.substring(start, end));
     }
 
+    private String escapeJson(String value) {
+        if (value == null) return "";
+        return value.replace("\\", "\\\\").replace("\"", "\\\"");
+    }
+
     private String sign(String data) throws NoSuchAlgorithmException, InvalidKeyException {
         Mac mac = Mac.getInstance("HmacSHA256");
-        SecretKeySpec secretKeySpec = new SecretKeySpec(SECRET_KEY.getBytes(StandardCharsets.UTF_8), "HmacSHA256");
+        SecretKeySpec secretKeySpec = new SecretKeySpec(getSecretKey().getBytes(StandardCharsets.UTF_8), "HmacSHA256");
         mac.init(secretKeySpec);
         byte[] signatureBytes = mac.doFinal(data.getBytes(StandardCharsets.UTF_8));
         return Base64.getUrlEncoder().withoutPadding().encodeToString(signatureBytes);

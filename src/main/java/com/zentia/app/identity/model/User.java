@@ -5,9 +5,13 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import com.zentia.app.finance.model.Category;
 
 @Entity
 @Table(name = "users")
@@ -34,6 +38,19 @@ public class User {
 
     @Column(name = "phone_number", unique = true, length = 20)
     private String phoneNumber;
+
+    @Column(name = "monthly_income", precision = 19, scale = 2)
+    private BigDecimal monthlyIncome;
+
+    @Column(name = "monthly_savings_goal", precision = 19, scale = 2)
+    private BigDecimal monthlySavingsGoal;
+
+    @Column(name = "estimated_monthly_expense", precision = 19, scale = 2)
+    private BigDecimal estimatedMonthlyExpense;
+
+    @ManyToOne
+    @JoinColumn(name = "priority_category_id")
+    private Category priorityCategory;
 
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
@@ -102,6 +119,38 @@ public class User {
 
     public void setPhoneNumber(String phoneNumber) {
         this.phoneNumber = phoneNumber;
+    }
+
+    public BigDecimal getMonthlyIncome() {
+        return monthlyIncome;
+    }
+
+    public void setMonthlyIncome(BigDecimal monthlyIncome) {
+        this.monthlyIncome = monthlyIncome;
+    }
+
+    public BigDecimal getMonthlySavingsGoal() {
+        return monthlySavingsGoal;
+    }
+
+    public void setMonthlySavingsGoal(BigDecimal monthlySavingsGoal) {
+        this.monthlySavingsGoal = monthlySavingsGoal;
+    }
+
+    public BigDecimal getEstimatedMonthlyExpense() {
+        return estimatedMonthlyExpense;
+    }
+
+    public void setEstimatedMonthlyExpense(BigDecimal estimatedMonthlyExpense) {
+        this.estimatedMonthlyExpense = estimatedMonthlyExpense;
+    }
+
+    public Category getPriorityCategory() {
+        return priorityCategory;
+    }
+
+    public void setPriorityCategory(Category priorityCategory) {
+        this.priorityCategory = priorityCategory;
     }
 
     public LocalDateTime getCreatedAt() {

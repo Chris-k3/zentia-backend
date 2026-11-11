@@ -1,0 +1,2376 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Zentia API — Portal de Documentación y Explorador HTTP para Frontend</title>
+  <style>
+    :root {
+      --bg: #0b0f19;
+      --bg-elevated: #111827;
+      --bg-card: #161f33;
+      --bg-input: #0d1322;
+      --border: #26334d;
+      --border-subtle: #1e293b;
+      --text: #f1f5f9;
+      --text-muted: #94a3b8;
+      --text-dim: #64748b;
+      --accent: #6366f1;
+      --accent-hover: #4f46e5;
+      --accent-soft: rgba(99, 102, 241, 0.14);
+
+      /* HTTP Method Colors */
+      --get-bg: rgba(16, 185, 129, 0.15);
+      --get-text: #34d399;
+      --get-border: rgba(16, 185, 129, 0.4);
+
+      --post-bg: rgba(59, 130, 246, 0.15);
+      --post-text: #60a5fa;
+      --post-border: rgba(59, 130, 246, 0.4);
+
+      --put-bg: rgba(245, 158, 11, 0.15);
+      --put-text: #fbbf24;
+      --put-border: rgba(245, 158, 11, 0.4);
+
+      --delete-bg: rgba(239, 68, 68, 0.15);
+      --delete-text: #f87171;
+      --delete-border: rgba(239, 68, 68, 0.4);
+
+      --public-bg: rgba(16, 185, 129, 0.12);
+      --public-text: #6ee7b7;
+      --auth-bg: rgba(245, 158, 11, 0.14);
+      --auth-text: #fcd34d;
+
+      --radius: 12px;
+      --radius-sm: 8px;
+      --shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.5);
+      --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      --font-mono: 'JetBrains Mono', 'Fira Code', Consolas, 'Courier New', monospace;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: var(--bg);
+      color: var(--text);
+      font-family: var(--font-sans);
+      line-height: 1.55;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    a {
+      color: var(--accent);
+      text-decoration: none;
+    }
+
+    /* Layout */
+    .topbar {
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      background: rgba(11, 15, 25, 0.88);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+      padding: 0.85rem 1.5rem;
+    }
+
+    .topbar-inner {
+      max-width: 1400px;
+      margin: 0 auto;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .brand-logo {
+      width: 38px;
+      height: 38px;
+      border-radius: 10px;
+      background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      font-size: 1.2rem;
+      color: #fff;
+      box-shadow: 0 4px 14px rgba(99, 102, 241, 0.4);
+    }
+
+    .brand-title {
+      font-weight: 700;
+      font-size: 1.1rem;
+      letter-spacing: -0.02em;
+    }
+
+    .brand-sub {
+      font-size: 0.78rem;
+      color: var(--text-muted);
+    }
+
+    .version-pill {
+      background: var(--accent-soft);
+      color: #a5b4fc;
+      border: 1px solid rgba(99, 102, 241, 0.35);
+      font-size: 0.72rem;
+      font-weight: 600;
+      padding: 0.2rem 0.55rem;
+      border-radius: 999px;
+      font-family: var(--font-mono);
+    }
+
+    .env-controls {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 0.65rem;
+    }
+
+    .control-group {
+      display: flex;
+      align-items: center;
+      background: var(--bg-input);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 0.25rem 0.6rem;
+      gap: 0.5rem;
+    }
+
+    .control-group label {
+      font-size: 0.72rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--text-muted);
+      font-weight: 600;
+      white-space: nowrap;
+    }
+
+    .control-group input {
+      background: transparent;
+      border: none;
+      color: var(--text);
+      font-family: var(--font-mono);
+      font-size: 0.82rem;
+      outline: none;
+      width: 210px;
+    }
+
+    .token-status {
+      font-size: 0.75rem;
+      padding: 0.25rem 0.6rem;
+      border-radius: 999px;
+      font-weight: 600;
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .token-status.empty {
+      background: rgba(148, 163, 184, 0.12);
+      color: var(--text-muted);
+    }
+
+    .token-status.active {
+      background: var(--public-bg);
+      color: var(--public-text);
+      border: 1px solid var(--get-border);
+    }
+
+    .container {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 1.75rem 1.5rem 4rem;
+      display: grid;
+      grid-template-columns: 280px 1fr;
+      gap: 2rem;
+      align-items: start;
+    }
+
+    @media (max-width: 1024px) {
+      .container {
+        grid-template-columns: 1fr;
+      }
+      .sidebar {
+        position: static !important;
+      }
+    }
+
+    /* Sidebar Navigation */
+    .sidebar {
+      position: sticky;
+      top: 82px;
+      background: var(--bg-elevated);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1.1rem;
+      max-height: calc(100vh - 105px);
+      overflow-y: auto;
+    }
+
+    .sidebar-section {
+      margin-bottom: 1.25rem;
+    }
+
+    .sidebar-section:last-child {
+      margin-bottom: 0;
+    }
+
+    .sidebar-heading {
+      font-size: 0.72rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--text-dim);
+      font-weight: 700;
+      margin-bottom: 0.55rem;
+      padding-left: 0.4rem;
+    }
+
+    .nav-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 0.25rem;
+    }
+
+    .nav-item a {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.45rem 0.55rem;
+      border-radius: 6px;
+      color: var(--text-muted);
+      font-size: 0.82rem;
+      transition: all 0.15s;
+    }
+
+    .nav-item a:hover {
+      background: rgba(255, 255, 255, 0.05);
+      color: var(--text);
+    }
+
+    .nav-method {
+      font-family: var(--font-mono);
+      font-size: 0.65rem;
+      font-weight: 700;
+      padding: 0.1rem 0.38rem;
+      border-radius: 4px;
+      min-width: 44px;
+      text-align: center;
+      flex-shrink: 0;
+    }
+
+    .nav-path {
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    /* Method Badges */
+    .badge-GET {
+      background: var(--get-bg);
+      color: var(--get-text);
+      border: 1px solid var(--get-border);
+    }
+    .badge-POST {
+      background: var(--post-bg);
+      color: var(--post-text);
+      border: 1px solid var(--post-border);
+    }
+    .badge-PUT {
+      background: var(--put-bg);
+      color: var(--put-text);
+      border: 1px solid var(--put-border);
+    }
+    .badge-DELETE {
+      background: var(--delete-bg);
+      color: var(--delete-text);
+      border: 1px solid var(--delete-border);
+    }
+
+    /* Main Content */
+    .main-content {
+      display: flex;
+      flex-direction: column;
+      gap: 1.75rem;
+      min-width: 0;
+    }
+
+    /* Hero / Overview Card */
+    .hero-card {
+      background: linear-gradient(145deg, #161f33 0%, #111827 100%);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1.5rem;
+      box-shadow: var(--shadow);
+    }
+
+    .hero-top {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 1rem;
+      margin-bottom: 1.15rem;
+    }
+
+    .hero-title {
+      font-size: 1.45rem;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      margin-bottom: 0.35rem;
+    }
+
+    .hero-desc {
+      color: var(--text-muted);
+      font-size: 0.92rem;
+      max-width: 780px;
+    }
+
+    .stats-row {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 0.85rem;
+      margin-top: 1rem;
+    }
+
+    .stat-box {
+      background: rgba(11, 15, 25, 0.55);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-sm);
+      padding: 0.8rem 1rem;
+    }
+
+    .stat-label {
+      font-size: 0.74rem;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    .stat-value {
+      font-size: 1.35rem;
+      font-weight: 800;
+      margin-top: 0.15rem;
+      font-family: var(--font-mono);
+    }
+
+    /* Navigation Tabs (Endpoints vs Quick Matrix vs TypeScript Models) */
+    .view-tabs {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 0.75rem;
+    }
+
+    .view-tab {
+      background: var(--bg-elevated);
+      color: var(--text-muted);
+      border: 1px solid var(--border);
+      padding: 0.55rem 1.05rem;
+      border-radius: var(--radius-sm);
+      font-size: 0.86rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+
+    .view-tab:hover {
+      color: var(--text);
+      border-color: var(--accent);
+    }
+
+    .view-tab.active {
+      background: var(--accent);
+      color: #fff;
+      border-color: var(--accent);
+    }
+
+    /* Filter Bar */
+    .filter-bar {
+      background: var(--bg-elevated);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1rem 1.2rem;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+    }
+
+    .filter-pills {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 0.4rem;
+    }
+
+    .filter-label {
+      font-size: 0.76rem;
+      color: var(--text-muted);
+      font-weight: 600;
+      margin-right: 0.3rem;
+    }
+
+    .pill-btn {
+      background: var(--bg-input);
+      color: var(--text-muted);
+      border: 1px solid var(--border);
+      padding: 0.32rem 0.7rem;
+      border-radius: 6px;
+      font-size: 0.76rem;
+      font-weight: 700;
+      cursor: pointer;
+      font-family: var(--font-mono);
+      transition: all 0.15s;
+    }
+
+    .pill-btn:hover {
+      color: var(--text);
+      border-color: var(--text-muted);
+    }
+
+    .pill-btn.active {
+      background: var(--accent-soft);
+      color: #a5b4fc;
+      border-color: var(--accent);
+    }
+
+    .search-box {
+      flex: 1;
+      min-width: 240px;
+      position: relative;
+    }
+
+    .search-box input {
+      width: 100%;
+      background: var(--bg-input);
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 0.48rem 0.85rem;
+      border-radius: var(--radius-sm);
+      font-size: 0.85rem;
+      outline: none;
+    }
+
+    .search-box input:focus {
+      border-color: var(--accent);
+    }
+
+    /* Quick Summary Table */
+    .table-card {
+      background: var(--bg-elevated);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+    }
+
+    .table-card-header {
+      padding: 1rem 1.25rem;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .table-card-header h2 {
+      font-size: 1rem;
+      font-weight: 700;
+    }
+
+    .table-wrap {
+      overflow-x: auto;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: left;
+      font-size: 0.85rem;
+    }
+
+    th {
+      background: rgba(11, 15, 25, 0.6);
+      color: var(--text-muted);
+      font-size: 0.73rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      padding: 0.75rem 1rem;
+      border-bottom: 1px solid var(--border);
+    }
+
+    td {
+      padding: 0.75rem 1rem;
+      border-bottom: 1px solid var(--border-subtle);
+      vertical-align: middle;
+    }
+
+    tr:last-child td {
+      border-bottom: none;
+    }
+
+    tr.clickable-row {
+      cursor: pointer;
+      transition: background 0.12s;
+    }
+
+    tr.clickable-row:hover {
+      background: rgba(99, 102, 241, 0.07);
+    }
+
+    .code-path {
+      font-family: var(--font-mono);
+      font-size: 0.82rem;
+      color: #e2e8f0;
+      font-weight: 600;
+    }
+
+    .access-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.3rem;
+      font-size: 0.73rem;
+      font-weight: 600;
+      padding: 0.18rem 0.55rem;
+      border-radius: 999px;
+      white-space: nowrap;
+    }
+
+    .access-public {
+      background: var(--public-bg);
+      color: var(--public-text);
+    }
+
+    .access-auth {
+      background: var(--auth-bg);
+      color: var(--auth-text);
+    }
+
+    /* Endpoint Cards */
+    .module-group {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    .module-header {
+      display: flex;
+      align-items: center;
+      gap: 0.65rem;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 0.5rem;
+      margin-top: 0.5rem;
+    }
+
+    .module-header h2 {
+      font-size: 1.15rem;
+      font-weight: 700;
+    }
+
+    .module-header span {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+    }
+
+    .endpoint-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+      transition: border-color 0.2s;
+    }
+
+    .endpoint-card:hover {
+      border-color: #3b4d71;
+    }
+
+    .endpoint-summary {
+      padding: 1rem 1.25rem;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.75rem;
+      cursor: pointer;
+      user-select: none;
+      background: rgba(17, 24, 39, 0.55);
+    }
+
+    .endpoint-summary-left {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 0.75rem;
+      min-width: 0;
+    }
+
+    .method-badge {
+      font-family: var(--font-mono);
+      font-size: 0.78rem;
+      font-weight: 800;
+      padding: 0.28rem 0.65rem;
+      border-radius: 6px;
+      min-width: 68px;
+      text-align: center;
+      letter-spacing: 0.03em;
+    }
+
+    .endpoint-path {
+      font-family: var(--font-mono);
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: #f8fafc;
+      word-break: break-all;
+    }
+
+    .endpoint-title {
+      color: var(--text-muted);
+      font-size: 0.88rem;
+    }
+
+    .endpoint-summary-right {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+    }
+
+    .copy-btn, .action-btn {
+      background: var(--bg-input);
+      color: var(--text-muted);
+      border: 1px solid var(--border);
+      padding: 0.3rem 0.65rem;
+      border-radius: 6px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+
+    .copy-btn:hover, .action-btn:hover {
+      color: var(--text);
+      border-color: var(--accent);
+    }
+
+    .endpoint-body {
+      padding: 1.25rem;
+      border-top: 1px solid var(--border);
+      display: none;
+      flex-direction: column;
+      gap: 1.25rem;
+    }
+
+    .endpoint-card.open .endpoint-body {
+      display: flex;
+    }
+
+    .endpoint-desc {
+      color: #cbd5e1;
+      font-size: 0.9rem;
+    }
+
+    .note-callout {
+      background: rgba(99, 102, 241, 0.1);
+      border-left: 3px solid var(--accent);
+      padding: 0.75rem 1rem;
+      border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+      font-size: 0.83rem;
+      color: #c7d2fe;
+    }
+
+    .warn-callout {
+      background: rgba(245, 158, 11, 0.1);
+      border-left: 3px solid #f59e0b;
+      padding: 0.75rem 1rem;
+      border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+      font-size: 0.83rem;
+      color: #fde68a;
+    }
+
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.25rem;
+    }
+
+    @media (max-width: 900px) {
+      .grid-2 {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .sub-title {
+      font-size: 0.78rem;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--text-muted);
+      font-weight: 700;
+      margin-bottom: 0.55rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .param-list {
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      overflow: hidden;
+      background: var(--bg-input);
+    }
+
+    .param-row {
+      padding: 0.65rem 0.85rem;
+      border-bottom: 1px solid var(--border-subtle);
+      display: flex;
+      flex-direction: column;
+      gap: 0.2rem;
+    }
+
+    .param-row:last-child {
+      border-bottom: none;
+    }
+
+    .param-head {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+    }
+
+    .param-name {
+      font-family: var(--font-mono);
+      font-weight: 700;
+      font-size: 0.83rem;
+      color: #93c5fd;
+    }
+
+    .param-type {
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      color: var(--text-muted);
+      background: rgba(255, 255, 255, 0.05);
+      padding: 0.08rem 0.4rem;
+      border-radius: 4px;
+    }
+
+    .param-req {
+      font-size: 0.68rem;
+      font-weight: 700;
+      color: #f87171;
+      text-transform: uppercase;
+    }
+
+    .param-opt {
+      font-size: 0.68rem;
+      font-weight: 600;
+      color: var(--text-dim);
+      text-transform: uppercase;
+    }
+
+    .param-desc {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+    }
+
+    pre.code-block {
+      background: #090d16;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 0.9rem 1rem;
+      overflow-x: auto;
+      font-family: var(--font-mono);
+      font-size: 0.8rem;
+      color: #e2e8f0;
+      line-height: 1.5;
+    }
+
+    /* Code Snippet Switcher */
+    .snippet-tabs {
+      display: flex;
+      gap: 0.35rem;
+    }
+
+    .snippet-tab {
+      background: var(--bg-input);
+      color: var(--text-muted);
+      border: 1px solid var(--border);
+      padding: 0.2rem 0.55rem;
+      border-radius: 5px;
+      font-size: 0.72rem;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    .snippet-tab.active {
+      background: var(--accent);
+      color: #fff;
+      border-color: var(--accent);
+    }
+
+    /* Interactive Playground Drawer */
+    .playground-box {
+      background: #0d1322;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 1rem;
+    }
+
+    .playground-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 0.85rem;
+    }
+
+    .playground-title {
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: #a5b4fc;
+      display: flex;
+      align-items: center;
+      gap: 0.45rem;
+    }
+
+    .playground-inputs {
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+
+    .pg-field {
+      display: flex;
+      flex-direction: column;
+      gap: 0.3rem;
+    }
+
+    .pg-field label {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      font-family: var(--font-mono);
+    }
+
+    .pg-field input, .pg-field textarea {
+      background: #070b14;
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 0.5rem 0.7rem;
+      border-radius: 6px;
+      font-family: var(--font-mono);
+      font-size: 0.8rem;
+      outline: none;
+    }
+
+    .pg-field textarea {
+      min-height: 110px;
+      resize: vertical;
+    }
+
+    .send-btn {
+      background: var(--accent);
+      color: #fff;
+      border: none;
+      padding: 0.5rem 1rem;
+      border-radius: 6px;
+      font-weight: 700;
+      font-size: 0.82rem;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+
+    .send-btn:hover {
+      background: var(--accent-hover);
+    }
+
+    .pg-response {
+      margin-top: 0.85rem;
+      display: none;
+    }
+
+    .pg-response.visible {
+      display: block;
+    }
+
+    .status-pill {
+      display: inline-block;
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      font-weight: 700;
+      padding: 0.15rem 0.5rem;
+      border-radius: 4px;
+      margin-bottom: 0.4rem;
+    }
+
+    .status-ok {
+      background: var(--get-bg);
+      color: var(--get-text);
+    }
+
+    .status-err {
+      background: var(--delete-bg);
+      color: var(--delete-text);
+    }
+
+    .hidden {
+      display: none !important;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Sticky Topbar -->
+  <header class="topbar">
+    <div class="topbar-inner">
+      <div class="brand">
+        <div class="brand-logo">Z</div>
+        <div>
+          <div style="display:flex; align-items:center; gap:0.5rem;">
+            <span class="brand-title">Zentia Backend API</span>
+            <span class="version-pill">v1.0 • Spring Boot 4.1</span>
+          </div>
+          <div class="brand-sub">Portal interactivo de métodos HTTP y contratos para Frontend</div>
+        </div>
+      </div>
+
+      <div class="env-controls">
+        <div class="control-group">
+          <label for="baseUrlInput">URL Base</label>
+          <input id="baseUrlInput" type="text" value="https://zentia-backend-5l77.onrender.com" />
+          <button type="button" class="copy-btn" onclick="setBaseUrl('https://zentia-backend-5l77.onrender.com')" title="Usar backend en Render">☁️ Render</button>
+          <button type="button" class="copy-btn" onclick="setBaseUrl('http://localhost:8080')" title="Usar backend local">💻 Local</button>
+        </div>
+        <div class="control-group">
+          <label for="jwtTokenInput">Bearer JWT</label>
+          <input id="jwtTokenInput" type="text" placeholder="Pega tu token o inicia sesión abajo..." />
+        </div>
+        <span id="tokenStatusBadge" class="token-status empty" title="Estado del Token JWT para pruebas en vivo">
+          Sin Token JWT
+        </span>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Container -->
+  <div class="container">
+    <!-- Left Sidebar -->
+    <aside class="sidebar">
+      <div class="sidebar-section">
+        <div class="sidebar-heading">Módulos y Endpoints</div>
+        <ul class="nav-list" id="sidebarNavList">
+          <!-- Populated by JS -->
+        </ul>
+      </div>
+
+      <div class="sidebar-section" style="border-top:1px solid var(--border); padding-top:1rem;">
+        <div class="sidebar-heading">Reglas Rápidas</div>
+        <div style="font-size:0.78rem; color:var(--text-muted); display:flex; flex-direction:column; gap:0.55rem; padding:0 0.3rem;">
+          <div>• <strong>Formato:</strong> <code>application/json</code></div>
+          <div>• <strong>Fechas:</strong> <code>YYYY-MM-DD</code></div>
+          <div>• <strong>Tipos de Transacción:</strong> <code>INGRESO</code> | <code>GASTO</code></div>
+          <div>• <strong>Header Auth:</strong> <code>Authorization: Bearer &lt;JWT&gt;</code></div>
+          <div>• <strong>Seguridad IDOR:</strong> En <code>/api/v1/transactions/**</code> el <code>userId</code> se extrae del JWT, nunca se envía por URL.</div>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Main Area -->
+    <main class="main-content">
+      <!-- Hero Banner -->
+      <section class="hero-card">
+        <div class="hero-top">
+          <div>
+            <h1 class="hero-title">Catálogo de Métodos HTTP — Zentia API</h1>
+            <p class="hero-desc">
+              Consulta todos los endpoints disponibles para el frontend, sus métodos HTTP (<code>GET</code>, <code>POST</code>, <code>PUT</code>, <code>DELETE</code>), nivel de acceso (Público vs JWT), estructuras JSON, snippets listos para React/Axios y probador en vivo.
+            </p>
+          </div>
+          <div style="display:flex; gap:0.5rem;">
+            <button class="action-btn" onclick="expandAll(true)">Expandir todos</button>
+            <button class="action-btn" onclick="expandAll(false)">Contraer todos</button>
+          </div>
+        </div>
+
+        <div class="stats-row">
+          <div class="stat-box">
+            <div class="stat-label">Total Endpoints</div>
+            <div class="stat-value">12</div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-label">Métodos GET / POST</div>
+            <div class="stat-value"><span style="color:var(--get-text)">4 GET</span> · <span style="color:var(--post-text)">5 POST</span></div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-label">Métodos PUT / DELETE</div>
+            <div class="stat-value"><span style="color:var(--put-text)">2 PUT</span> · <span style="color:var(--delete-text)">1 DEL</span></div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-label">Acceso</div>
+            <div class="stat-value"><span style="color:var(--public-text)">5 Púb</span> · <span style="color:var(--auth-text)">7 JWT</span></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- View Switcher Tabs -->
+      <div class="view-tabs">
+        <button class="view-tab active" onclick="switchView('explorer', this)">
+          Explorador Detallado y Probador HTTP (12)
+        </button>
+        <button class="view-tab" onclick="switchView('authguide', this)">
+          🔐 Guía de Auth (Google + Render + Supabase)
+        </button>
+        <button class="view-tab" onclick="switchView('matrix', this)">
+          Tabla Resumen de Accesos y Métodos
+        </button>
+        <button class="view-tab" onclick="switchView('typescript', this)">
+          Interfaces TypeScript + Cliente Axios (React)
+        </button>
+      </div>
+
+      <!-- TAB 1: Explorer View -->
+      <div id="view-explorer" style="display:flex; flex-direction:column; gap:1.5rem;">
+        <!-- Filter Bar -->
+        <div class="filter-bar">
+          <div class="filter-pills">
+            <span class="filter-label">Método:</span>
+            <button class="pill-btn active" onclick="setMethodFilter('ALL', this)">TODOS</button>
+            <button class="pill-btn" onclick="setMethodFilter('GET', this)">GET</button>
+            <button class="pill-btn" onclick="setMethodFilter('POST', this)">POST</button>
+            <button class="pill-btn" onclick="setMethodFilter('PUT', this)">PUT</button>
+            <button class="pill-btn" onclick="setMethodFilter('DELETE', this)">DELETE</button>
+          </div>
+
+          <div class="filter-pills">
+            <span class="filter-label">Acceso:</span>
+            <button class="pill-btn active" onclick="setAccessFilter('ALL', this)">TODOS</button>
+            <button class="pill-btn" onclick="setAccessFilter('PUBLIC', this)">🔓 PÚBLICOS</button>
+            <button class="pill-btn" onclick="setAccessFilter('AUTH', this)">🔒 REQUIEREN JWT</button>
+          </div>
+
+          <div class="search-box">
+            <input
+              type="text"
+              id="searchInput"
+              placeholder="Buscar por ruta (/transactions, /auth), método o descripción..."
+              oninput="renderEndpoints()"
+            />
+          </div>
+        </div>
+
+        <!-- Endpoints Container -->
+        <div id="endpointsContainer" style="display:flex; flex-direction:column; gap:1.75rem;"></div>
+      </div>
+
+      <!-- TAB 2: Quick Matrix Table -->
+      <div id="view-authguide" class="hidden" style="display:flex; flex-direction:column; gap:1.5rem;">
+        <div class="table-card" style="padding:1.4rem;">
+          <h2 style="font-size:1.15rem; margin-bottom:0.5rem;">🔐 Arquitectura de Autenticación (Frontend React ↔ Backend Render ↔ BD Supabase)</h2>
+          <p style="font-size:0.88rem; color:var(--text-muted); margin-bottom:1rem;">
+            Importante: <strong>No se usa Supabase Auth en el frontend</strong>. Supabase funciona únicamente como la base de datos PostgreSQL conectada al backend de Spring Boot en Render. Toda la sesión se maneja con el <strong>JWT propio de Zentia</strong> que devuelve el backend.
+          </p>
+          <pre class="code-block" style="margin-bottom:1.2rem;">[1] Usuario hace clic en "Continuar con Google" en React (@react-oauth/google)
+        │
+        ▼
+[2] Google devuelve credencial OAuth (idToken / datos de perfil) al Frontend
+        │
+        ▼
+[3] Frontend hace POST https://zentia-backend-5l77.onrender.com/api/v1/auth/google
+    (Puede enviar { googleId, email, name, pictureUrl, idToken } o solo { idToken })
+        │
+        ▼
+[4] Backend en Render busca/crea el usuario en Supabase (tabla "users")
+    y firma un Token JWT propio de Zentia (válido por 24h)
+        │
+        ▼
+[5] Backend responde: { token, userId, email, name, onboardingCompleted, newUser }
+        │
+        ├──► Si onboardingCompleted === false:
+        │      Frontend redirige a pantalla de Onboarding (/onboarding)
+        │      y envía POST /api/v1/users/onboarding con Authorization: Bearer &lt;token&gt;
+        │
+        └──► Si onboardingCompleted === true:
+               Frontend redirige al Dashboard (/dashboard) y consulta:
+               • GET /api/v1/users/financial-profile
+               • GET /api/v1/transactions/dashboard?startDate=...&amp;endDate=...</pre>
+
+          <div class="grid-2">
+            <div class="param-list" style="padding:1rem;">
+              <div class="sub-title" style="color:#6ee7b7;">✅ 1. Lo que necesitas TÚ (Backend en Render + Supabase + Google Cloud)</div>
+              <div style="font-size:0.82rem; color:var(--text-muted); display:flex; flex-direction:column; gap:0.65rem;">
+                <div>
+                  <strong>A. Variables de Entorno en Render:</strong>
+                  <pre class="code-block" style="margin-top:0.3rem;">SPRING_DATASOURCE_URL=jdbc:postgresql://aws-0-&lt;REGION&gt;.pooler.supabase.com:6543/postgres?ssl=true&amp;sslfactory=org.postgresql.ssl.NonValidatingFactory&amp;prepareThreshold=0
+SPRING_DATASOURCE_USERNAME=postgres.&lt;PROJECT_REF&gt;
+SPRING_DATASOURCE_PASSWORD=&lt;TU_PASSWORD_DE_SUPABASE&gt;
+PORT=8080
+JWT_SECRET=&lt;CLAVE_SECRETA_LARGA_PARA_FIRMAR_JWT&gt;</pre>
+                  <span style="display:block; margin-top:0.3rem;">⚠️ <em>Nota:</em> En el pooler de Supabase puerto <code>6543</code>, asegúrate de incluir <code>&amp;prepareThreshold=0</code> al final del URL para evitar errores de prepared statements en Hibernate.</span>
+                </div>
+                <div>
+                  <strong>B. Google Cloud Console (Orígenes autorizados de JavaScript):</strong>
+                  En tu cliente OAuth 2.0 (<em>Aplicación web</em>), agrega <strong>todos los orígenes desde donde el navegador abrirá el botón de Google</strong>:
+                  <pre class="code-block" style="margin-top:0.3rem;">https://zentia-backend-5l77.onrender.com
+http://localhost:5173
+http://localhost:3000</pre>
+                  Y cuando despliegues el frontend (Vercel/Netlify), agrega también esa URL. Comparte únicamente el <code>Client ID</code> con tu compañero (<strong>nunca</strong> el <code>Client Secret</code>).
+                </div>
+                <div>
+                  <strong>C. Categorías iniciales en Supabase:</strong>
+                  Asegúrate de tener registros en la tabla <code>categories</code> en Supabase para que el frontend pueda listarlos y enviar <code>priorityCategoryId</code> en el Onboarding.
+                </div>
+              </div>
+            </div>
+
+            <div class="param-list" style="padding:1rem;">
+              <div class="sub-title" style="color:#93c5fd;">💻 2. Lo que necesita TU COMPAÑERO (Frontend en React / Vite)</div>
+              <div style="font-size:0.82rem; color:var(--text-muted); display:flex; flex-direction:column; gap:0.65rem;">
+                <div>
+                  <strong>A. Variables de entorno en su <code>.env</code> (Vite):</strong>
+                  <pre class="code-block" id="frontendEnvCode" style="margin-top:0.3rem;">VITE_API_URL=https://zentia-backend-5l77.onrender.com/api/v1
+VITE_GOOGLE_CLIENT_ID=183088381575-do8e85n57lg1saag6r7mj88gkd0srmk8.apps.googleusercontent.com</pre>
+                  <button type="button" class="copy-btn" style="margin-top:0.4rem;" onclick="copyTextFromEl('frontendEnvCode', this)">Copiar .env para Frontend</button>
+                </div>
+                <div>
+                  <strong>B. Instalar paquete oficial de Google en React:</strong>
+                  <pre class="code-block" style="margin-top:0.3rem;">npm install @react-oauth/google axios</pre>
+                </div>
+                <div>
+                  <strong>C. Guardar el JWT y enviarlo en rutas protegidas:</strong>
+                  Al recibir la respuesta de <code>POST /api/v1/auth/google</code>, guardar <code>res.token</code> en <code>localStorage.setItem('zentia_token', res.token)</code> y adjuntarlo siempre como header:
+                  <code>Authorization: Bearer &lt;token&gt;</code>.
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="table-card" style="padding:1.25rem;">
+          <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:0.75rem; margin-bottom:0.75rem;">
+            <div>
+              <h2 style="font-size:1.05rem;">🧪 Probar Login Real con Google OAuth desde este Portal</h2>
+              <p style="font-size:0.83rem; color:var(--text-muted);">Como <code>https://zentia-backend-5l77.onrender.com</code> está en tus orígenes autorizados, pega tu <code>GOOGLE_CLIENT_ID</code> para probar el flujo real de punta a punta y obtener tu JWT.</p>
+            </div>
+          </div>
+          <div style="display:flex; flex-wrap:wrap; gap:0.75rem; align-items:center; margin-bottom:0.85rem;">
+            <input id="googleClientIdTester" type="text" value="183088381575-do8e85n57lg1saag6r7mj88gkd0srmk8.apps.googleusercontent.com" placeholder="Pega tu Client ID (xxxx.apps.googleusercontent.com)" style="flex:1; min-width:280px; background:#070b14; border:1px solid var(--border); color:var(--text); padding:0.55rem 0.75rem; border-radius:6px; font-family:var(--font-mono); font-size:0.82rem;" />
+            <button type="button" class="send-btn" onclick="initGoogleSignInTester()">Cargar Botón de Google</button>
+          </div>
+          <div id="googleBtnContainer" style="margin-bottom:0.75rem;"></div>
+          <pre class="code-block hidden" id="googleTesterOutput"></pre>
+        </div>
+
+        <div class="table-card" style="padding:1.25rem;">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.75rem;">
+            <div>
+              <h2 style="font-size:1.05rem;">3. Ejemplo Completo de Login con Google + Redirección a Onboarding en React</h2>
+              <p style="font-size:0.83rem; color:var(--text-muted);">El backend soporta recibir tanto el <code>idToken</code> directo de <code>&lt;GoogleLogin /&gt;</code> como el objeto completo con <code>googleId, email, name, pictureUrl</code>.</p>
+            </div>
+            <button class="copy-btn" onclick="copyTextFromEl('reactGoogleAuthCode', this)">Copiar código React</button>
+          </div>
+          <pre class="code-block" id="reactGoogleAuthCode">import { GoogleLogin } from '@react-oauth/google';
+import { zentiaApi } from '../api/zentiaClient';
+
+export function LoginButton({ onLoginSuccess }: { onLoginSuccess: (onboardingCompleted: boolean) =&gt; void }) {
+  return (
+    &lt;GoogleLogin
+      onSuccess={async (credentialResponse) =&gt; {
+        if (!credentialResponse.credential) return;
+
+        // El backend de Zentia decodifica automáticamente el idToken de Google
+        // (o también puedes enviar googleId, email, name, pictureUrl explícitamente)
+        const authData = await zentiaApi.loginWithGoogle({
+          idToken: credentialResponse.credential,
+          googleId: '',
+          email: '',
+          name: '',
+        });
+
+        // 1. Guardar el JWT propio de Zentia para futuras peticiones protegidas
+        localStorage.setItem('zentia_token', authData.token);
+
+        // 2. Redirigir según si ya completó el cuestionario de Onboarding
+        onLoginSuccess(authData.onboardingCompleted);
+      }}
+      onError={() =&gt; {
+        console.error('Error al iniciar sesión con Google');
+      }}
+    /&gt;
+  );
+}</pre>
+        </div>
+      </div>
+
+      <!-- TAB 3: Quick Matrix Table -->
+      <div id="view-matrix" class="hidden">
+        <div class="table-card">
+          <div class="table-card-header">
+            <h2>Mapa Completo de Endpoints y Permisos (`SecurityConfig.java`)</h2>
+            <span style="font-size:0.8rem; color:var(--text-muted);">Haz clic en cualquier fila para ir al detalle</span>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Método</th>
+                  <th>Ruta (Path)</th>
+                  <th>Nivel de Acceso</th>
+                  <th>Módulo</th>
+                  <th>Envío de Datos</th>
+                  <th>Descripción</th>
+                </tr>
+              </thead>
+              <tbody id="matrixTableBody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- TAB 3: TypeScript & Axios Integration -->
+      <div id="view-typescript" class="hidden" style="display:flex; flex-direction:column; gap:1.5rem;">
+        <div class="table-card" style="padding:1.25rem;">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.75rem;">
+            <div>
+              <h2 style="font-size:1.05rem;">1. Interfaces TypeScript (<code>src/types/zentia.ts</code>)</h2>
+              <p style="font-size:0.83rem; color:var(--text-muted);">Tipos exactos basados en los DTOs de Java del backend.</p>
+            </div>
+            <button class="copy-btn" onclick="copyTextFromEl('tsInterfacesCode', this)">Copiar código</button>
+          </div>
+          <pre class="code-block" id="tsInterfacesCode">export type TransactionType = 'INGRESO' | 'GASTO';
+
+export interface GoogleAuthRequestDTO {
+  googleId: string;
+  email: string;
+  name: string;
+  pictureUrl?: string;
+  idToken: string;
+}
+
+export interface AuthResponseDTO {
+  token: string;
+  userId: number;
+  email: string;
+  name: string;
+  onboardingCompleted: boolean;
+  newUser: boolean; // Serializado por Jackson desde isNewUser()
+}
+
+export interface UserResponseDTO {
+  id: number;
+  name: string;
+  email: string;
+  pictureUrl: string | null;
+  onboardingCompleted: boolean;
+  phoneNumber: string | null;
+}
+
+export interface FinancialProfileRequestDTO {
+  monthlyIncome: number;
+  monthlySavingsGoal: number;
+  estimatedMonthlyExpense?: number | null;
+  priorityCategoryId?: number | null;
+}
+
+export interface FinancialProfileResponseDTO {
+  userId: number;
+  monthlyIncome: number;
+  monthlySavingsGoal: number;
+  estimatedMonthlyExpense: number | null;
+  priorityCategoryId: number | null;
+  priorityCategoryName: string | null;
+  onboardingCompleted: boolean;
+}
+
+export interface Category {
+  id: number;
+  name: string;
+  type: TransactionType;
+  icon: string | null;
+}
+
+export interface TransactionRequestDTO {
+  categoryId: number;
+  amount: number;
+  type?: TransactionType; // Requerido al crear (POST), ignorado al actualizar (PUT)
+  description?: string;
+  transactionDate?: string; // Formato "YYYY-MM-DD" (opcional en POST, por defecto hoy)
+}
+
+export interface TransactionResponseDTO {
+  id: number;
+  description: string;
+  amount: number;
+  date: string; // "YYYY-MM-DD"
+  type: TransactionType;
+  categoryName: string;
+}
+
+export interface DashboardSummaryDTO {
+  totalIngresos: number;
+  totalGastos: number;
+  balanceActual: number;
+}</pre>
+        </div>
+
+        <div class="table-card" style="padding:1.25rem;">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.75rem;">
+            <div>
+              <h2 style="font-size:1.05rem;">2. Cliente HTTP con Axios + Interceptor JWT (<code>src/api/zentiaClient.ts</code>)</h2>
+              <p style="font-size:0.83rem; color:var(--text-muted);">Funciones listas para importar en tus componentes o hooks de React.</p>
+            </div>
+            <button class="copy-btn" onclick="copyTextFromEl('axiosClientCode', this)">Copiar código</button>
+          </div>
+          <pre class="code-block" id="axiosClientCode">import axios from 'axios';
+import type {
+  GoogleAuthRequestDTO,
+  AuthResponseDTO,
+  UserResponseDTO,
+  FinancialProfileRequestDTO,
+  FinancialProfileResponseDTO,
+  Category,
+  TransactionRequestDTO,
+  TransactionResponseDTO,
+  DashboardSummaryDTO,
+} from '../types/zentia';
+
+const api = axios.create({
+  baseURL: import.meta.env.VITE_API_URL || 'https://zentia-backend-5l77.onrender.com/api/v1',
+  headers: {
+    'Content-Type': 'application/json',
+  },
+});
+
+// Inyecta automáticamente el token JWT en cada petición protegida
+api.interceptors.request.use((config) => {
+  const token = localStorage.getItem('zentia_token');
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
+  }
+  return config;
+});
+
+export const zentiaApi = {
+  // 1. Auth con Google (POST /api/v1/auth/google)
+  loginWithGoogle: (data: GoogleAuthRequestDTO) =>
+    api.post&lt;AuthResponseDTO&gt;('/auth/google', data).then((r) => r.data),
+
+  // 2. Solicitar OTP (POST /api/v1/auth/otp/solicitar?phoneNumber=...)
+  requestOtp: (phoneNumber: string) =>
+    api.post&lt;{ message: string }&gt;('/auth/otp/solicitar', null, { params: { phoneNumber } }).then((r) => r.data),
+
+  // 3. Verificar OTP (POST /api/v1/auth/otp/verificar?phoneNumber=...&amp;codigo=...)
+  verifyOtp: (phoneNumber: string, codigo: string) =>
+    api.post&lt;{ message: string; token: string }&gt;('/auth/otp/verificar', null, {
+      params: { phoneNumber, codigo },
+    }).then((r) => r.data),
+
+  // 4. Vincular teléfono (PUT /api/v1/users/profile/phone?userId=...&amp;phoneNumber=...)
+  linkPhone: (userId: number, phoneNumber: string) =>
+    api.put&lt;UserResponseDTO&gt;('/users/profile/phone', null, {
+      params: { userId, phoneNumber },
+    }).then((r) => r.data),
+
+  // 5. Completar Onboarding / Guardar perfil financiero (POST /api/v1/users/onboarding) - Requiere JWT
+  completeOnboarding: (data: FinancialProfileRequestDTO) =>
+    api.post&lt;FinancialProfileResponseDTO&gt;('/users/onboarding', data).then((r) => r.data),
+
+  // 6. Consultar perfil financiero (GET /api/v1/users/financial-profile) - Requiere JWT
+  getFinancialProfile: () =>
+    api.get&lt;FinancialProfileResponseDTO&gt;('/users/financial-profile').then((r) => r.data),
+
+  // 7. Listar categorías (GET /api/v1/categories)
+  getCategories: () =>
+    api.get&lt;Category[]&gt;('/categories').then((r) => r.data),
+
+  // 6. Registrar transacción (POST /api/v1/transactions) - Requiere JWT
+  createTransaction: (data: TransactionRequestDTO) =>
+    api.post&lt;TransactionResponseDTO&gt;('/transactions', data).then((r) => r.data),
+
+  // 7. Consultar historial por rango (GET /api/v1/transactions/historial) - Requiere JWT
+  getHistory: (startDate: string, endDate: string) =>
+    api.get&lt;TransactionResponseDTO[]&gt;('/transactions/historial', {
+      params: { startDate, endDate },
+    }).then((r) => r.data),
+
+  // 8. Resumen Dashboard (GET /api/v1/transactions/dashboard) - Requiere JWT
+  getDashboardSummary: (startDate: string, endDate: string) =>
+    api.get&lt;DashboardSummaryDTO&gt;('/transactions/dashboard', {
+      params: { startDate, endDate },
+    }).then((r) => r.data),
+
+  // 9. Actualizar transacción (PUT /api/v1/transactions/{transactionId}) - Requiere JWT
+  updateTransaction: (transactionId: number, data: Pick&lt;TransactionRequestDTO, 'categoryId' | 'amount' | 'description'&gt;) =>
+    api.put&lt;TransactionResponseDTO&gt;(`/transactions/${transactionId}`, data).then((r) => r.data),
+
+  // 10. Eliminar transacción (DELETE /api/v1/transactions/{transactionId}) - Requiere JWT
+  deleteTransaction: (transactionId: number) =>
+    api.delete(`/transactions/${transactionId}`),
+};</pre>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script>
+    // Complete specification of all 10 backend endpoints
+    const ENDPOINTS = [
+      {
+        id: 'auth-google',
+        module: '🔐 1. Identidad y Autenticación',
+        method: 'POST',
+        path: '/api/v1/auth/google',
+        title: 'Login / Registro con Google OAuth 2.0',
+        access: 'PUBLIC',
+        payloadFormat: 'JSON Body',
+        description:
+          'Autentica o registra a un usuario utilizando los datos devueltos por el proveedor de Google en el frontend. Si el usuario no existe (por googleId o email), lo crea con onboardingCompleted = false y devuelve un Token JWT válido por 24 horas.',
+        note: 'En la respuesta JSON, Jackson serializa el getter booleano isNewUser() como "newUser" (o verifica ambos newUser / isNewUser en el frontend). Al probar este endpoint aquí, el token devuelto se guardará automáticamente arriba.',
+        params: [],
+        bodyFields: [
+          { name: 'googleId', type: 'string', required: true, desc: 'ID único de la cuenta de Google (máx. 100 caracteres).' },
+          { name: 'email', type: 'string', required: true, desc: 'Correo electrónico del usuario (único, máx. 100 caracteres).' },
+          { name: 'name', type: 'string', required: true, desc: 'Nombre visible del usuario (máx. 100 caracteres).' },
+          { name: 'pictureUrl', type: 'string', required: false, desc: 'URL de la foto de perfil de Google (máx. 255 caracteres).' },
+          { name: 'idToken', type: 'string', required: false, desc: 'Token ID entregado por Google OAuth.' }
+        ],
+        requestExample: {
+          googleId: '108392109384729103984',
+          email: 'usuario@ejemplo.com',
+          name: 'Chris',
+          pictureUrl: 'https://lh3.googleusercontent.com/a/default-user',
+          idToken: 'eyJhbGciOiJSUzI1NiIs...'
+        },
+        responses: [
+          {
+            status: '200 OK',
+            body: {
+              token: 'eyJhbGciOiJIUzI1NiJ9...',
+              userId: 1,
+              email: 'usuario@ejemplo.com',
+              name: 'Chris',
+              onboardingCompleted: false,
+              newUser: true
+            }
+          }
+        ]
+      },
+      {
+        id: 'auth-otp-solicitar',
+        module: '🔐 1. Identidad y Autenticación',
+        method: 'POST',
+        path: '/api/v1/auth/otp/solicitar',
+        title: 'Solicitar Código OTP por Teléfono',
+        access: 'PUBLIC',
+        payloadFormat: 'Query Params',
+        description:
+          'Genera un código OTP de 6 dígitos para inicio de sesión alternativo por número telefónico. El teléfono debe estar previamente vinculado a un usuario existente. En entorno de desarrollo, el código generado se imprime en la consola del servidor backend.',
+        params: [
+          { in: 'query', name: 'phoneNumber', type: 'string', required: true, example: '+523312345678', desc: 'Número telefónico con código de país.' }
+        ],
+        bodyFields: [],
+        requestExample: null,
+        responses: [
+          {
+            status: '200 OK',
+            body: {
+              message: 'Código OTP enviado exitosamente a +523312345678'
+            }
+          },
+          {
+            status: '404 Not Found',
+            body: {
+              error: 'El número de teléfono no está registrado en ninguna cuenta.'
+            }
+          }
+        ]
+      },
+      {
+        id: 'auth-otp-verificar',
+        module: '🔐 1. Identidad y Autenticación',
+        method: 'POST',
+        path: '/api/v1/auth/otp/verificar',
+        title: 'Verificar Código OTP y Obtener JWT',
+        access: 'PUBLIC',
+        payloadFormat: 'Query Params',
+        description:
+          'Verifica el código OTP de 6 dígitos asociado al número telefónico. Si es correcto, consume el OTP y retorna un Token JWT de sesión válido por 24 horas.',
+        params: [
+          { in: 'query', name: 'phoneNumber', type: 'string', required: true, example: '+523312345678', desc: 'Número de teléfono registrado.' },
+          { in: 'query', name: 'codigo', type: 'string', required: true, example: '123456', desc: 'Código OTP de 6 dígitos impreso en consola.' }
+        ],
+        bodyFields: [],
+        requestExample: null,
+        responses: [
+          {
+            status: '200 OK',
+            body: {
+              message: 'Login exitoso',
+              token: 'eyJhbGciOiJIUzI1NiJ9...'
+            }
+          },
+          {
+            status: '401 Unauthorized',
+            body: {
+              error: 'Código OTP inválido o expirado.'
+            }
+          }
+        ]
+      },
+      {
+        id: 'users-profile-phone',
+        module: '👤 2. Perfil de Usuario',
+        method: 'PUT',
+        path: '/api/v1/users/profile/phone',
+        title: 'Vincular Número de Teléfono al Perfil',
+        access: 'PUBLIC',
+        payloadFormat: 'Query Params',
+        description:
+          'Asocia o actualiza el número telefónico de un usuario existente verificando que no esté ocupado por otra cuenta.',
+        params: [
+          { in: 'query', name: 'userId', type: 'long', required: true, example: '1', desc: 'ID del usuario al que se vinculará el teléfono.' },
+          { in: 'query', name: 'phoneNumber', type: 'string', required: true, example: '+523312345678', desc: 'Número telefónico con lada internacional.' }
+        ],
+        bodyFields: [],
+        requestExample: null,
+        responses: [
+          {
+            status: '200 OK',
+            body: {
+              id: 1,
+              name: 'Chris',
+              email: 'usuario@ejemplo.com',
+              pictureUrl: 'https://lh3.googleusercontent.com/a/default-user',
+              onboardingCompleted: false,
+              phoneNumber: '+523312345678'
+            }
+          },
+          {
+            status: '409 Conflict',
+            body: {
+              error: 'El número de teléfono ya está vinculado a otra cuenta.'
+            }
+          }
+        ]
+      },
+      {
+        id: 'users-onboarding',
+        module: '👤 2. Perfil de Usuario y Onboarding',
+        method: 'POST',
+        path: '/api/v1/users/onboarding',
+        title: 'Completar Onboarding y Guardar Perfil Financiero',
+        access: 'AUTH',
+        payloadFormat: 'JSON Body',
+        description:
+          'Persiste el ingreso mensual estimado, la meta de ahorro mensual, el gasto estimado opcional y la categoría prioritaria en la cuenta del usuario autenticado, y actualiza automáticamente onboardingCompleted = true. También acepta PUT /api/v1/users/financial-profile.',
+        warn: 'Requiere cabecera Authorization: Bearer <TOKEN_JWT>. El userId se obtiene automáticamente del token.',
+        params: [],
+        bodyFields: [
+          { name: 'monthlyIncome', type: 'number (BigDecimal)', required: true, desc: 'Ingreso mensual estimado (>= 0).' },
+          { name: 'monthlySavingsGoal', type: 'number (BigDecimal)', required: true, desc: 'Meta de ahorro mensual (>= 0).' },
+          { name: 'estimatedMonthlyExpense', type: 'number (BigDecimal)', required: false, desc: 'Gasto estimado mensual opcional (>= 0).' },
+          { name: 'priorityCategoryId', type: 'number (Long)', required: false, desc: 'ID de la categoría prioritaria (FK a categories).' }
+        ],
+        requestExample: {
+          monthlyIncome: 25000.00,
+          monthlySavingsGoal: 5000.00,
+          priorityCategoryId: 1
+        },
+        responses: [
+          {
+            status: '200 OK',
+            body: {
+              userId: 1,
+              monthlyIncome: 25000.00,
+              monthlySavingsGoal: 5000.00,
+              estimatedMonthlyExpense: null,
+              priorityCategoryId: 1,
+              priorityCategoryName: 'Alimentación',
+              onboardingCompleted: true
+            }
+          }
+        ]
+      },
+      {
+        id: 'users-financial-profile',
+        module: '👤 2. Perfil de Usuario y Onboarding',
+        method: 'GET',
+        path: '/api/v1/users/financial-profile',
+        title: 'Consultar Perfil Financiero del Usuario',
+        access: 'AUTH',
+        payloadFormat: 'Ninguno',
+        description:
+          'Devuelve el ingreso mensual estimado, la meta de ahorro mensual, el gasto estimado y la categoría prioritaria del usuario autenticado para alimentar las barras de progreso del Dashboard.',
+        warn: 'Requiere cabecera Authorization: Bearer <TOKEN_JWT>.',
+        params: [],
+        bodyFields: [],
+        requestExample: null,
+        responses: [
+          {
+            status: '200 OK',
+            body: {
+              userId: 1,
+              monthlyIncome: 25000.00,
+              monthlySavingsGoal: 5000.00,
+              estimatedMonthlyExpense: null,
+              priorityCategoryId: 1,
+              priorityCategoryName: 'Alimentación',
+              onboardingCompleted: true
+            }
+          }
+        ]
+      },
+      {
+        id: 'categories-list',
+        module: '🏷️ 3. Catálogo de Categorías',
+        method: 'GET',
+        path: '/api/v1/categories',
+        title: 'Listar Todas las Categorías',
+        access: 'PUBLIC',
+        payloadFormat: 'Ninguno',
+        description:
+          'Devuelve la lista completa de categorías financieras registradas en la base de datos (tanto de tipo INGRESO como GASTO) junto con su ícono.',
+        params: [],
+        bodyFields: [],
+        requestExample: null,
+        responses: [
+          {
+            status: '200 OK',
+            body: [
+              { id: 1, name: 'Alimentación', type: 'GASTO', icon: 'fast-food-outline' },
+              { id: 2, name: 'Salario', type: 'INGRESO', icon: 'cash-outline' },
+              { id: 3, name: 'Transporte', type: 'GASTO', icon: 'car-outline' }
+            ]
+          }
+        ]
+      },
+      {
+        id: 'transactions-create',
+        module: '💰 4. Transacciones Financieras y Dashboard',
+        method: 'POST',
+        path: '/api/v1/transactions',
+        title: 'Registrar Nueva Transacción',
+        access: 'AUTH',
+        payloadFormat: 'JSON Body',
+        description:
+          'Crea un nuevo registro de ingreso o gasto para el usuario autenticado. El userId se toma directamente del Token JWT (protección anti-IDOR). El monto debe ser estrictamente mayor a 0.',
+        warn: 'Requiere cabecera Authorization: Bearer <TOKEN_JWT>. Si no se incluye transactionDate, el backend asigna automáticamente la fecha actual (LocalDate.now()).',
+        params: [],
+        bodyFields: [
+          { name: 'categoryId', type: 'number (Long)', required: true, desc: 'ID de la categoría existente.' },
+          { name: 'amount', type: 'number (BigDecimal)', required: true, desc: 'Monto de la transacción (> 0).' },
+          { name: 'type', type: 'string', required: true, desc: 'Valores permitidos: "INGRESO" o "GASTO".' },
+          { name: 'description', type: 'string', required: false, desc: 'Descripción breve o concepto (máx. 255 caracteres).' },
+          { name: 'transactionDate', type: 'string (YYYY-MM-DD)', required: false, desc: 'Fecha en formato ISO YYYY-MM-DD. Si es null toma hoy.' }
+        ],
+        requestExample: {
+          categoryId: 1,
+          amount: 250.50,
+          type: 'GASTO',
+          description: 'Cena familiar',
+          transactionDate: '2026-10-10'
+        },
+        responses: [
+          {
+            status: '200 OK',
+            body: {
+              id: 15,
+              description: 'Cena familiar',
+              amount: 250.5,
+              date: '2026-10-10',
+              type: 'GASTO',
+              categoryName: 'Alimentación'
+            }
+          }
+        ]
+      },
+      {
+        id: 'transactions-history',
+        module: '💰 4. Transacciones Financieras y Dashboard',
+        method: 'GET',
+        path: '/api/v1/transactions/historial',
+        title: 'Consultar Historial de Transacciones por Fechas',
+        access: 'AUTH',
+        payloadFormat: 'Query Params',
+        description:
+          'Obtiene todas las transacciones pertenecientes al usuario autenticado dentro del rango de fechas indicado [startDate, endDate].',
+        warn: 'Requiere cabecera Authorization: Bearer <TOKEN_JWT>. Ambos parámetros startDate y endDate son obligatorios en formato YYYY-MM-DD.',
+        params: [
+          { in: 'query', name: 'startDate', type: 'string (YYYY-MM-DD)', required: true, example: '2026-01-01', desc: 'Fecha inicial del filtro.' },
+          { in: 'query', name: 'endDate', type: 'string (YYYY-MM-DD)', required: true, example: '2026-12-31', desc: 'Fecha final del filtro.' }
+        ],
+        bodyFields: [],
+        requestExample: null,
+        responses: [
+          {
+            status: '200 OK',
+            body: [
+              {
+                id: 15,
+                description: 'Cena familiar',
+                amount: 250.5,
+                date: '2026-10-10',
+                type: 'GASTO',
+                categoryName: 'Alimentación'
+              },
+              {
+                id: 14,
+                description: 'Pago quincenal',
+                amount: 15000.0,
+                date: '2026-10-05',
+                type: 'INGRESO',
+                categoryName: 'Salario'
+              }
+            ]
+          }
+        ]
+      },
+      {
+        id: 'transactions-dashboard',
+        module: '💰 4. Transacciones Financieras y Dashboard',
+        method: 'GET',
+        path: '/api/v1/transactions/dashboard',
+        title: 'Obtener Resumen Financiero (Dashboard)',
+        access: 'AUTH',
+        payloadFormat: 'Query Params',
+        description:
+          'Calcula con precisión decimal (BigDecimal) la suma de ingresos, la suma de gastos y el balance neto (totalIngresos - totalGastos) del usuario autenticado en el periodo consultado.',
+        warn: 'Requiere cabecera Authorization: Bearer <TOKEN_JWT>.',
+        params: [
+          { in: 'query', name: 'startDate', type: 'string (YYYY-MM-DD)', required: true, example: '2026-01-01', desc: 'Fecha de inicio del cálculo.' },
+          { in: 'query', name: 'endDate', type: 'string (YYYY-MM-DD)', required: true, example: '2026-12-31', desc: 'Fecha de fin del cálculo.' }
+        ],
+        bodyFields: [],
+        requestExample: null,
+        responses: [
+          {
+            status: '200 OK',
+            body: {
+              totalIngresos: 15000.00,
+              totalGastos: 3450.75,
+              balanceActual: 11549.25
+            }
+          }
+        ]
+      },
+      {
+        id: 'transactions-update',
+        module: '💰 4. Transacciones Financieras y Dashboard',
+        method: 'PUT',
+        path: '/api/v1/transactions/{transactionId}',
+        title: 'Actualizar Transacción Existente',
+        access: 'AUTH',
+        payloadFormat: 'Path + JSON Body',
+        description:
+          'Modifica el monto, la categoría y la descripción de una transacción existente. Valida que la transacción pertenezca al usuario autenticado en el JWT (no modifica fecha ni tipo original).',
+        warn: 'Requiere cabecera Authorization: Bearer <TOKEN_JWT>.',
+        params: [
+          { in: 'path', name: 'transactionId', type: 'long', required: true, example: '15', desc: 'ID de la transacción en la URL.' }
+        ],
+        bodyFields: [
+          { name: 'categoryId', type: 'number (Long)', required: true, desc: 'Nuevo ID de categoría.' },
+          { name: 'amount', type: 'number (BigDecimal)', required: true, desc: 'Nuevo monto (> 0).' },
+          { name: 'description', type: 'string', required: false, desc: 'Nueva descripción de la transacción.' }
+        ],
+        requestExample: {
+          categoryId: 3,
+          amount: 300.00,
+          description: 'Cena familiar en restaurante'
+        },
+        responses: [
+          {
+            status: '200 OK',
+            body: {
+              id: 15,
+              description: 'Cena familiar en restaurante',
+              amount: 300.0,
+              date: '2026-10-10',
+              type: 'GASTO',
+              categoryName: 'Transporte'
+            }
+          }
+        ]
+      },
+      {
+        id: 'transactions-delete',
+        module: '💰 4. Transacciones Financieras y Dashboard',
+        method: 'DELETE',
+        path: '/api/v1/transactions/{transactionId}',
+        title: 'Eliminar Transacción',
+        access: 'AUTH',
+        payloadFormat: 'Path Variable',
+        description:
+          'Elimina permanentemente una transacción tras verificar que pertenece al usuario autenticado en el JWT. Devuelve código HTTP 204 No Content sin cuerpo.',
+        warn: 'Requiere cabecera Authorization: Bearer <TOKEN_JWT>.',
+        params: [
+          { in: 'path', name: 'transactionId', type: 'long', required: true, example: '15', desc: 'ID de la transacción a eliminar.' }
+        ],
+        bodyFields: [],
+        requestExample: null,
+        responses: [
+          {
+            status: '204 No Content',
+            body: '// Sin contenido en el cuerpo de respuesta'
+          }
+        ]
+      }
+    ];
+
+    let activeMethodFilter = 'ALL';
+    let activeAccessFilter = 'ALL';
+
+    function getBaseUrl() {
+      return (document.getElementById('baseUrlInput').value || 'https://zentia-backend-5l77.onrender.com').replace(/\/+$/, '');
+    }
+
+    function setBaseUrl(url) {
+      document.getElementById('baseUrlInput').value = url;
+      renderEndpoints();
+    }
+
+    function initBaseUrlAndToken() {
+      const input = document.getElementById('baseUrlInput');
+      if (window.location.protocol === 'http:' || window.location.protocol === 'https:') {
+        input.value = window.location.origin;
+      }
+      const savedToken = sessionStorage.getItem('zentia_explorer_jwt');
+      if (savedToken) {
+        document.getElementById('jwtTokenInput').value = savedToken;
+        updateTokenBadge();
+      }
+      input.addEventListener('change', () => renderEndpoints());
+    }
+
+    function initGoogleSignInTester() {
+      const clientId = document.getElementById('googleClientIdTester').value.trim();
+      const output = document.getElementById('googleTesterOutput');
+      const btnContainer = document.getElementById('googleBtnContainer');
+      if (!clientId) {
+        output.classList.remove('hidden');
+        output.textContent = 'Por favor ingresa tu GOOGLE_CLIENT_ID (xxxx.apps.googleusercontent.com).';
+        return;
+      }
+
+      const renderButton = () => {
+        btnContainer.innerHTML = '';
+        window.google.accounts.id.initialize({
+          client_id: clientId,
+          callback: async (response) => {
+            output.classList.remove('hidden');
+            output.textContent = 'Enviando idToken a ' + getBaseUrl() + '/api/v1/auth/google ...';
+            try {
+              const res = await fetch(getBaseUrl() + '/api/v1/auth/google', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ idToken: response.credential })
+              });
+              const data = await res.json();
+              output.textContent = JSON.stringify(data, null, 2);
+              if (data && data.token) {
+                document.getElementById('jwtTokenInput').value = data.token;
+                updateTokenBadge();
+              }
+            } catch (err) {
+              output.textContent = 'Error conectando al backend: ' + err.message;
+            }
+          }
+        });
+        window.google.accounts.id.renderButton(btnContainer, {
+          theme: 'filled_blue',
+          size: 'large',
+          text: 'signin_with',
+          shape: 'rectangular'
+        });
+      };
+
+      if (window.google && window.google.accounts && window.google.accounts.id) {
+        renderButton();
+      } else {
+        const script = document.createElement('script');
+        script.src = 'https://accounts.google.com/gsi/client';
+        script.async = true;
+        script.defer = true;
+        script.onload = renderButton;
+        script.onerror = () => {
+          output.classList.remove('hidden');
+          output.textContent = 'No se pudo cargar Google Identity Services (verifica tu conexión a internet).';
+        };
+        document.head.appendChild(script);
+      }
+    }
+
+    function getJwtToken() {
+      return document.getElementById('jwtTokenInput').value.trim();
+    }
+
+    function updateTokenBadge() {
+      const token = getJwtToken();
+      if (token) {
+        sessionStorage.setItem('zentia_explorer_jwt', token);
+      } else {
+        sessionStorage.removeItem('zentia_explorer_jwt');
+      }
+      const badge = document.getElementById('tokenStatusBadge');
+      if (!token) {
+        badge.className = 'token-status empty';
+        badge.textContent = 'Sin Token JWT';
+        return;
+      }
+      try {
+        const payload = JSON.parse(atob(token.split('.')[1]));
+        badge.className = 'token-status active';
+        badge.textContent = `JWT Activo (userId: ${payload.userId ?? '?'})`;
+      } catch {
+        badge.className = 'token-status active';
+        badge.textContent = 'JWT Configurado';
+      }
+    }
+
+    document.getElementById('jwtTokenInput').addEventListener('input', updateTokenBadge);
+
+    function setMethodFilter(method, btn) {
+      activeMethodFilter = method;
+      btn.parentElement.querySelectorAll('.pill-btn').forEach((b) => b.classList.remove('active'));
+      btn.classList.add('active');
+      renderEndpoints();
+    }
+
+    function setAccessFilter(access, btn) {
+      activeAccessFilter = access;
+      btn.parentElement.querySelectorAll('.pill-btn').forEach((b) => b.classList.remove('active'));
+      btn.classList.add('active');
+      renderEndpoints();
+    }
+
+    function switchView(viewName, btn) {
+      document.querySelectorAll('.view-tab').forEach((t) => t.classList.remove('active'));
+      btn.classList.add('active');
+      ['explorer', 'authguide', 'matrix', 'typescript'].forEach((v) => {
+        const el = document.getElementById('view-' + v);
+        if (v === viewName) {
+          el.classList.remove('hidden');
+        } else {
+          el.classList.add('hidden');
+        }
+      });
+    }
+
+    function generateSnippet(ep, type) {
+      const baseUrl = getBaseUrl();
+      const queryParams = ep.params.filter((p) => p.in === 'query');
+      const queryStr = queryParams.length
+        ? '?' + queryParams.map((p) => `${p.name}=${encodeURIComponent(p.example)}`).join('&')
+        : '';
+      const resolvedPath = ep.path.replace('{transactionId}', '15');
+      const fullUrl = `${baseUrl}${resolvedPath}${queryStr}`;
+
+      if (type === 'axios') {
+        const headersLine = ep.access === 'AUTH'
+          ? `\n  headers: { Authorization: \`Bearer \${localStorage.getItem('zentia_token')}\` },`
+          : '';
+        const paramsLine = queryParams.length
+          ? `\n  params: { ${queryParams.map((p) => `${p.name}: '${p.example}'`).join(', ')} },`
+          : '';
+        if (ep.requestExample) {
+          return `import axios from 'axios';\n\nconst response = await axios.${ep.method.toLowerCase()}(\n  '${baseUrl}${resolvedPath}',\n  ${JSON.stringify(ep.requestExample, null, 2).replace(/\n/g, '\n  ')},${headersLine || paramsLine ? `\n  {${headersLine}${paramsLine}\n  }` : ''}\n);\nconsole.log(response.data);`;
+        } else if (ep.method === 'POST' || ep.method === 'PUT') {
+          return `import axios from 'axios';\n\nconst response = await axios.${ep.method.toLowerCase()}(\n  '${baseUrl}${resolvedPath}',\n  null,\n  {${headersLine}${paramsLine}\n  }\n);\nconsole.log(response.data);`;
+        } else {
+          return `import axios from 'axios';\n\nconst response = await axios.${ep.method.toLowerCase()}('${baseUrl}${resolvedPath}'${headersLine || paramsLine ? `, {${headersLine}${paramsLine}\n}` : ''});\nconsole.log(response.data);`;
+        }
+      }
+
+      if (type === 'fetch') {
+        const headers = {};
+        if (ep.requestExample) headers['Content-Type'] = 'application/json';
+        if (ep.access === 'AUTH') headers['Authorization'] = 'Bearer <TU_TOKEN_JWT>';
+        return `const response = await fetch('${fullUrl}', {\n  method: '${ep.method}',${Object.keys(headers).length ? `\n  headers: ${JSON.stringify(headers, null, 4).replace(/\n/g, '\n  ')},` : ''}${ep.requestExample ? `\n  body: JSON.stringify(${JSON.stringify(ep.requestExample, null, 4).replace(/\n/g, '\n  ')}),` : ''}\n});\nconst data = response.status !== 204 ? await response.json() : null;\nconsole.log(data);`;
+      }
+
+      // cURL
+      let curl = `curl -X ${ep.method} "${fullUrl}"`;
+      if (ep.access === 'AUTH') {
+        curl += ` \\\n  -H "Authorization: Bearer <TU_TOKEN_JWT>"`;
+      }
+      if (ep.requestExample) {
+        curl += ` \\\n  -H "Content-Type: application/json" \\\n  -d '${JSON.stringify(ep.requestExample)}'`;
+      }
+      return curl;
+    }
+
+    function renderSidebarAndMatrix() {
+      const navList = document.getElementById('sidebarNavList');
+      const matrixBody = document.getElementById('matrixTableBody');
+      navList.innerHTML = '';
+      matrixBody.innerHTML = '';
+
+      ENDPOINTS.forEach((ep) => {
+        // Sidebar item
+        const li = document.createElement('li');
+        li.className = 'nav-item';
+        li.innerHTML = `
+          <a href="#card-${ep.id}" onclick="openAndScrollTo('${ep.id}', event)">
+            <span class="nav-method badge-${ep.method}">${ep.method}</span>
+            <span class="nav-path" title="${ep.path}">${ep.path.replace('/api/v1', '')}</span>
+          </a>
+        `;
+        navList.appendChild(li);
+
+        // Matrix row
+        const tr = document.createElement('tr');
+        tr.className = 'clickable-row';
+        tr.onclick = () => {
+          document.querySelector('.view-tab').click();
+          openAndScrollTo(ep.id);
+        };
+        tr.innerHTML = `
+          <td><span class="method-badge badge-${ep.method}">${ep.method}</span></td>
+          <td><span class="code-path">${ep.path}</span></td>
+          <td>
+            <span class="access-badge ${ep.access === 'PUBLIC' ? 'access-public' : 'access-auth'}">
+              ${ep.access === 'PUBLIC' ? '🔓 Público' : '🔒 JWT Bearer'}
+            </span>
+          </td>
+          <td style="color:var(--text-muted); font-size:0.8rem;">${ep.module}</td>
+          <td style="font-family:var(--font-mono); font-size:0.78rem; color:var(--text-muted);">${ep.payloadFormat}</td>
+          <td>${ep.title}</td>
+        `;
+        matrixBody.appendChild(tr);
+      });
+    }
+
+    function renderEndpoints() {
+      const container = document.getElementById('endpointsContainer');
+      const query = (document.getElementById('searchInput').value || '').toLowerCase().trim();
+      container.innerHTML = '';
+
+      const filtered = ENDPOINTS.filter((ep) => {
+        if (activeMethodFilter !== 'ALL' && ep.method !== activeMethodFilter) return false;
+        if (activeAccessFilter !== 'ALL' && ep.access !== activeAccessFilter) return false;
+        if (query) {
+          const hay = `${ep.method} ${ep.path} ${ep.title} ${ep.description} ${ep.module}`.toLowerCase();
+          if (!hay.includes(query)) return false;
+        }
+        return true;
+      });
+
+      if (!filtered.length) {
+        container.innerHTML = `
+          <div style="text-align:center; padding:3rem; background:var(--bg-elevated); border:1px solid var(--border); border-radius:var(--radius); color:var(--text-muted);">
+            No se encontraron endpoints que coincidan con el filtro actual.
+          </div>
+        `;
+        return;
+      }
+
+      // Group by module
+      const groups = {};
+      filtered.forEach((ep) => {
+        if (!groups[ep.module]) groups[ep.module] = [];
+        groups[ep.module].push(ep);
+      });
+
+      Object.entries(groups).forEach(([moduleName, eps]) => {
+        const groupEl = document.createElement('div');
+        groupEl.className = 'module-group';
+        groupEl.innerHTML = `
+          <div class="module-header">
+            <h2>${moduleName}</h2>
+            <span>(${eps.length} ${eps.length === 1 ? 'endpoint' : 'endpoints'})</span>
+          </div>
+        `;
+
+        eps.forEach((ep) => {
+          const card = document.createElement('div');
+          card.className = 'endpoint-card open';
+          card.id = `card-${ep.id}`;
+
+          const paramsHtml = ep.params.length
+            ? `
+              <div>
+                <div class="sub-title">Parámetros de URL (Path / Query)</div>
+                <div class="param-list">
+                  ${ep.params
+                    .map(
+                      (p) => `
+                    <div class="param-row">
+                      <div class="param-head">
+                        <span class="param-name">${p.name}</span>
+                        <span class="param-type">${p.in.toUpperCase()} • ${p.type}</span>
+                        <span class="${p.required ? 'param-req' : 'param-opt'}">${p.required ? 'Obligatorio' : 'Opcional'}</span>
+                      </div>
+                      <div class="param-desc">${p.desc} (Ej: <code>${p.example}</code>)</div>
+                    </div>
+                  `
+                    )
+                    .join('')}
+                </div>
+              </div>
+            `
+            : '';
+
+          const bodyFieldsHtml = ep.bodyFields.length
+            ? `
+              <div>
+                <div class="sub-title">Campos del Cuerpo JSON (Request Body)</div>
+                <div class="param-list">
+                  ${ep.bodyFields
+                    .map(
+                      (f) => `
+                    <div class="param-row">
+                      <div class="param-head">
+                        <span class="param-name">${f.name}</span>
+                        <span class="param-type">${f.type}</span>
+                        <span class="${f.required ? 'param-req' : 'param-opt'}">${f.required ? 'Obligatorio' : 'Opcional'}</span>
+                      </div>
+                      <div class="param-desc">${f.desc}</div>
+                    </div>
+                  `
+                    )
+                    .join('')}
+                </div>
+              </div>
+            `
+            : '';
+
+          const responsesHtml = ep.responses
+            .map(
+              (r) => `
+              <div style="margin-bottom:0.75rem;">
+                <div class="sub-title">
+                  <span>Respuesta <code>${r.status}</code></span>
+                </div>
+                <pre class="code-block">${typeof r.body === 'string' ? r.body : JSON.stringify(r.body, null, 2)}</pre>
+              </div>
+            `
+            )
+            .join('');
+
+          // Playground inputs
+          const pgParamInputs = ep.params
+            .map(
+              (p) => `
+              <div class="pg-field">
+                <label>${p.name} (${p.in})</label>
+                <input type="text" data-pg-param="${p.name}" data-pg-in="${p.in}" value="${p.example}" />
+              </div>
+            `
+            )
+            .join('');
+
+          const pgBodyInput = ep.requestExample
+            ? `
+              <div class="pg-field">
+                <label>Cuerpo JSON (Request Body)</label>
+                <textarea data-pg-body="${ep.id}">${JSON.stringify(ep.requestExample, null, 2)}</textarea>
+              </div>
+            `
+            : '';
+
+          card.innerHTML = `
+            <div class="endpoint-summary" onclick="toggleCard('${ep.id}', event)">
+              <div class="endpoint-summary-left">
+                <span class="method-badge badge-${ep.method}">${ep.method}</span>
+                <span class="endpoint-path">${ep.path}</span>
+                <span class="endpoint-title">— ${ep.title}</span>
+              </div>
+              <div class="endpoint-summary-right">
+                <span class="access-badge ${ep.access === 'PUBLIC' ? 'access-public' : 'access-auth'}">
+                  ${ep.access === 'PUBLIC' ? '🔓 Público' : '🔒 Requiere JWT'}
+                </span>
+                <button class="copy-btn" onclick="copyText('${ep.path}', this, event)">Copiar ruta</button>
+              </div>
+            </div>
+
+            <div class="endpoint-body">
+              <div class="endpoint-desc">${ep.description}</div>
+              ${ep.note ? `<div class="note-callout">💡 <strong>Nota para Frontend:</strong> ${ep.note}</div>` : ''}
+              ${ep.warn ? `<div class="warn-callout">🔐 <strong>Seguridad:</strong> ${ep.warn}</div>` : ''}
+
+              ${paramsHtml || bodyFieldsHtml ? `<div class="grid-2">${paramsHtml}${bodyFieldsHtml}</div>` : ''}
+
+              <div class="grid-2">
+                <div>
+                  <div class="sub-title">
+                    <span>Ejemplo de Petición desde Frontend</span>
+                    <div class="snippet-tabs">
+                      <button class="snippet-tab active" onclick="switchSnippet('${ep.id}', 'axios', this)">Axios</button>
+                      <button class="snippet-tab" onclick="switchSnippet('${ep.id}', 'fetch', this)">Fetch</button>
+                      <button class="snippet-tab" onclick="switchSnippet('${ep.id}', 'curl', this)">cURL</button>
+                      <button class="copy-btn" onclick="copyTextFromEl('snippet-${ep.id}', this)">Copiar</button>
+                    </div>
+                  </div>
+                  <pre class="code-block" id="snippet-${ep.id}">${escapeHtml(generateSnippet(ep, 'axios'))}</pre>
+                </div>
+
+                <div>
+                  ${responsesHtml}
+                </div>
+              </div>
+
+              <!-- Live API Tester -->
+              <div class="playground-box">
+                <div class="playground-header">
+                  <div class="playground-title">⚡ Probar Endpoint en Vivo contra <code>${getBaseUrl()}</code></div>
+                  <button class="send-btn" onclick="executeRequest('${ep.id}')">Enviar Petición (${ep.method})</button>
+                </div>
+                <div class="playground-inputs" id="pg-inputs-${ep.id}">
+                  ${pgParamInputs}
+                  ${pgBodyInput}
+                </div>
+                <div class="pg-response" id="pg-res-${ep.id}">
+                  <span class="status-pill" id="pg-status-${ep.id}"></span>
+                  <pre class="code-block" id="pg-output-${ep.id}"></pre>
+                </div>
+              </div>
+            </div>
+          `;
+
+          groupEl.appendChild(card);
+        });
+
+        container.appendChild(groupEl);
+      });
+    }
+
+    function escapeHtml(str) {
+      return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    }
+
+    function toggleCard(id, event) {
+      if (event && event.target.closest('button')) return;
+      const card = document.getElementById(`card-${id}`);
+      if (card) card.classList.toggle('open');
+    }
+
+    function expandAll(open) {
+      document.querySelectorAll('.endpoint-card').forEach((c) => {
+        if (open) c.classList.add('open');
+        else c.classList.remove('open');
+      });
+    }
+
+    function openAndScrollTo(id, event) {
+      if (event) event.preventDefault();
+      const card = document.getElementById(`card-${id}`);
+      if (card) {
+        card.classList.add('open');
+        card.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    }
+
+    function switchSnippet(epId, type, btn) {
+      const ep = ENDPOINTS.find((e) => e.id === epId);
+      if (!ep) return;
+      btn.parentElement.querySelectorAll('.snippet-tab').forEach((b) => b.classList.remove('active'));
+      btn.classList.add('active');
+      document.getElementById(`snippet-${epId}`).textContent = generateSnippet(ep, type);
+    }
+
+    function copyText(text, btn, event) {
+      if (event) event.stopPropagation();
+      navigator.clipboard.writeText(text);
+      const prev = btn.textContent;
+      btn.textContent = '¡Copiado!';
+      setTimeout(() => (btn.textContent = prev), 1400);
+    }
+
+    function copyTextFromEl(elId, btn) {
+      const text = document.getElementById(elId).textContent;
+      copyText(text, btn);
+    }
+
+    async function executeRequest(epId) {
+      const ep = ENDPOINTS.find((e) => e.id === epId);
+      if (!ep) return;
+
+      const baseUrl = getBaseUrl();
+      const inputsBox = document.getElementById(`pg-inputs-${epId}`);
+      const resBox = document.getElementById(`pg-res-${epId}`);
+      const statusEl = document.getElementById(`pg-status-${epId}`);
+      const outputEl = document.getElementById(`pg-output-${epId}`);
+
+      let urlPath = ep.path;
+      const queryPairs = [];
+
+      inputsBox.querySelectorAll('[data-pg-param]').forEach((input) => {
+        const name = input.getAttribute('data-pg-param');
+        const loc = input.getAttribute('data-pg-in');
+        const val = input.value.trim();
+        if (loc === 'path') {
+          urlPath = urlPath.replace(`{${name}}`, encodeURIComponent(val));
+        } else if (loc === 'query' && val !== '') {
+          queryPairs.push(`${encodeURIComponent(name)}=${encodeURIComponent(val)}`);
+        }
+      });
+
+      const fullUrl = `${baseUrl}${urlPath}${queryPairs.length ? '?' + queryPairs.join('&') : ''}`;
+      const headers = {};
+      const token = getJwtToken();
+      if (token) {
+        headers['Authorization'] = `Bearer ${token}`;
+      }
+
+      let body = undefined;
+      const bodyArea = inputsBox.querySelector(`[data-pg-body="${epId}"]`);
+      if (bodyArea) {
+        headers['Content-Type'] = 'application/json';
+        body = bodyArea.value;
+      }
+
+      resBox.classList.add('visible');
+      statusEl.className = 'status-pill';
+      statusEl.textContent = 'Enviando petición...';
+      outputEl.textContent = '';
+
+      const startTime = performance.now();
+      try {
+        const response = await fetch(fullUrl, {
+          method: ep.method,
+          headers,
+          body
+        });
+        const elapsed = Math.round(performance.now() - startTime);
+        const isOk = response.ok;
+        statusEl.className = `status-pill ${isOk ? 'status-ok' : 'status-err'}`;
+        statusEl.textContent = `HTTP ${response.status} ${response.statusText} (${elapsed} ms)`;
+
+        if (response.status === 204) {
+          outputEl.textContent = '// 204 No Content (Transacción eliminada correctamente)';
+          return;
+        }
+
+        const rawText = await response.text();
+        try {
+          const json = JSON.parse(rawText);
+          outputEl.textContent = JSON.stringify(json, null, 2);
+          if (json && json.token) {
+            document.getElementById('jwtTokenInput').value = json.token;
+            updateTokenBadge();
+          }
+        } catch {
+          outputEl.textContent = rawText || '// Respuesta vacía';
+        }
+      } catch (err) {
+        statusEl.className = 'status-pill status-err';
+        statusEl.textContent = 'Error de Conexión / CORS';
+        outputEl.textContent = `No se pudo conectar a ${fullUrl}.\nVerifica que el backend de Zentia esté corriendo en ${baseUrl}.\nDetalle: ${err.message}`;
+      }
+    }
+
+    // Initial render
+    initBaseUrlAndToken();
+    renderSidebarAndMatrix();
+    renderEndpoints();
+  </script>
+</body>
+</html>
+

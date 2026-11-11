@@ -1,5 +1,7 @@
 package com.zentia.app.identity.controller;
 
+import java.util.Map;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -25,9 +27,13 @@ public class AuthController {
      * Registra o autentica al usuario mediante las credenciales de Google OAuth 2.0 y retorna el JWT.
      */
     @PostMapping("/google")
-    public ResponseEntity<AuthResponseDTO> authenticateWithGoogle(@RequestBody GoogleAuthRequestDTO request) {
-        AuthResponseDTO response = userService.authenticateWithGoogle(request);
-        return ResponseEntity.ok(response);
+    public ResponseEntity<?> authenticateWithGoogle(@RequestBody GoogleAuthRequestDTO request) {
+        try {
+            AuthResponseDTO response = userService.authenticateWithGoogle(request);
+            return ResponseEntity.ok(response);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("error", e.getMessage()));
+        }
     }
 }
 

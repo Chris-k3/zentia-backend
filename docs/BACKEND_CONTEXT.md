@@ -73,6 +73,10 @@ Tabla: `users`.
 | `pictureUrl` | `String` | Opcional, máximo 255 |
 | `onboardingCompleted` | `boolean` | Obligatorio; inicia en `false` |
 | `phoneNumber` | `String` | Opcional, único, máximo 20 |
+| `monthlyIncome` | `BigDecimal` | Opcional; precisión 19, escala 2 (`monthly_income`) |
+| `monthlySavingsGoal` | `BigDecimal` | Opcional; precisión 19, escala 2 (`monthly_savings_goal`) |
+| `estimatedMonthlyExpense` | `BigDecimal` | Opcional; precisión 19, escala 2 (`estimated_monthly_expense`) |
+| `priorityCategory` | `Category` | `ManyToOne` opcional, columna `priority_category_id` |
 | `createdAt` | `LocalDateTime` | Se asigna al crear; no se actualiza |
 
 No existe una colección JPA inversa de transacciones en `User`.
@@ -205,6 +209,9 @@ El resultado es `Map<String, BigDecimal>`, no una entidad persistente.
 | POST | `/api/v1/auth/otp/solicitar` | Público | Solicitar OTP por teléfono |
 | POST | `/api/v1/auth/otp/verificar` | Público | Verificar OTP y generar JWT |
 | PUT | `/api/v1/users/profile/phone` | Configurado como público | Vincular teléfono |
+| POST | `/api/v1/users/onboarding` | Autenticado | Guardar perfil financiero y marcar `onboardingCompleted = true` |
+| PUT | `/api/v1/users/financial-profile` | Autenticado | Alias para guardar/actualizar perfil financiero |
+| GET | `/api/v1/users/financial-profile` | Autenticado | Consultar ingreso estimado, meta de ahorro y categoría prioritaria |
 | GET | `/api/v1/categories` | Público | Listar categorías |
 | POST | `/api/v1/transactions` | Autenticado | Registrar transacción |
 | GET | `/api/v1/transactions/historial` | Autenticado | Consultar historial por fechas |
@@ -234,9 +241,11 @@ Los parámetros y cuerpos detallados están en `API_DOCUMENTATION.md`.
 
 ### Onboarding
 
-El estado inicial sí está implementado, pero el flujo completo no. No existe endpoint ni
-caso de uso para marcar el onboarding como completado y las operaciones de transacciones y
-dashboard no bloquean actualmente a usuarios con `onboardingCompleted = false`.
+El usuario inicia con `onboardingCompleted = false`. Al llamar a `POST /api/v1/users/onboarding`
+(o `PUT /api/v1/users/financial-profile`), se persisten `monthlyIncome`, `monthlySavingsGoal`,
+`estimatedMonthlyExpense` y `priorityCategory` en `User` y se actualiza automáticamente
+`onboardingCompleted = true`. El perfil financiero puede consultarse mediante
+`GET /api/v1/users/financial-profile`.
 
 ## Límites conocidos del estado actual
 
