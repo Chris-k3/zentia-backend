@@ -97,7 +97,7 @@ sh mvnw test
 
 ## Documentación
 
-- **ADRs:** `docs/adr/` *(carpeta pendiente de crear/agregar al repositorio)*
+- **ADRs:** [`docs/adr/`](docs/adr/README.md)
 - **Contexto técnico del backend:** [`docs/BACKEND_CONTEXT.md`](docs/BACKEND_CONTEXT.md)
 - **Documentación de endpoints REST:** [`API_DOCUMENTATION.md`](API_DOCUMENTATION.md)
 - **Video:** https://youtu.be/SrxgnGwO__4
