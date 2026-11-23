@@ -21,9 +21,7 @@ API REST para la gestión de finanzas personales de **Zentia**, enfocada en ayud
 
 ## Arquitectura
 
-![Diagrama](docs/arquitectura.png)
-
-> Nota: si `docs/arquitectura.png` aún no está en el repositorio, puedes consultar el diagrama Mermaid de capas en el [anexo inferior](#diagrama-de-capas).
+![Diagrama de Clean Architecture — Proyecto Zentia](docs/arquitectura.png)
 
 El backend sigue una **arquitectura por capas orientada a diseño hexagonal** dividida en dos módulos dentro de `src/main/java/com/zentia/app/`: `finance` (núcleo financiero) e `identity` (autenticación, usuarios y seguridad). Las dependencias apuntan hacia adentro (`Infraestructura -> Aplicación -> Dominio`).
 
