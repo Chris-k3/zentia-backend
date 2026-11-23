@@ -1,4 +1,110 @@
-# Reglas de negocio núcleo
+# Zentia Backend
+
+API REST para la gestión de finanzas personales de **Zentia**, enfocada en ayudar a personas usuarias a registrar ingresos y gastos, organizar categorías, completar su perfil financiero (onboarding) y consultar balances por rango de fechas. Centraliza la autenticación y las reglas del núcleo financiero para clientes web y móviles.
+
+## Equipo
+
+- Ángel Uriel Ramírez Salgado — 333330 — Tech Lead Frontend
+- Christopher Rivera Hernandez — 333326 — Backend Lead
+- Daniel Alberto Felix Anguiano — 333357 — Tester, UX/UI Designer
+
+## Stack
+
+| Capa / Uso | Tecnología |
+|---|---|
+| Lenguaje | Java 21 |
+| Framework | Spring Boot 4.1.1 (Spring Web MVC, Spring Security) |
+| Persistencia | Spring Data JPA / Hibernate (`ddl-auto=update`) |
+| Base de datos | PostgreSQL |
+| Build y pruebas | Maven (`mvnw`), JUnit 5, Mockito, AssertJ |
+| Contenedor | Docker (multi-stage con `maven:3.9.6-eclipse-temurin:21` y `eclipse-temurin:21-jre-jammy`) |
+
+## Arquitectura
+
+![Diagrama](docs/arquitectura.png)
+
+> Nota: si `docs/arquitectura.png` aún no está en el repositorio, puedes consultar el diagrama Mermaid de capas en el [anexo inferior](#diagrama-de-capas).
+
+El backend sigue una **arquitectura por capas orientada a diseño hexagonal** dividida en dos módulos dentro de `src/main/java/com/zentia/app/`: `finance` (núcleo financiero) e `identity` (autenticación, usuarios y seguridad). Las dependencias apuntan hacia adentro (`Infraestructura -> Aplicación -> Dominio`).
+
+| Capa | Responsabilidad | Ubicación en `src/` |
+|---|---|---|
+| Entrada / Presentación | Controladores REST y DTOs de entrada/salida | `src/main/java/com/zentia/app/finance/controller/`, `finance/dto/`, `identity/controller/`, `identity/dto/` |
+| Aplicación (Casos de uso y servicios) | Orquestación de reglas de negocio, autenticación y catálogo | `src/main/java/com/zentia/app/finance/usecase/`, `finance/services/`, `identity/services/` |
+| Puertos | Interfaces de salida desacopladas de la base de datos | `src/main/java/com/zentia/app/finance/port/` (`TransactionRepositoryPort`) |
+| Dominio (Modelos) | Entidades y enums centrales (`User`, `Category`, `Transaction`, `TransactionType`) | `src/main/java/com/zentia/app/finance/model/`, `identity/model/` |
+| Infraestructura / Adaptadores | Persistencia JPA/PostgreSQL, adaptador en memoria para pruebas y seguridad JWT/CORS | `src/main/java/com/zentia/app/finance/adapter/`, `finance/repository/`, `identity/repository/`, `identity/security/` |
+
+## Cómo correrlo
+
+### 1. Requisitos
+
+- **Java 21** (JDK 21+)
+- **PostgreSQL** (ej. 14+ corriendo en `localhost:5432` con la base de datos `zentia_db`, o una instancia remota)
+- **Maven Wrapper** incluido en el repositorio (`mvnw`, no requiere instalar Maven globalmente)
+- **Docker** (opcional, para ejecutar en contenedor)
+
+### 2. Variables de entorno
+
+Copia la plantilla y ajusta tus credenciales:
+
+```bash
+cp .env.example .env
+```
+
+Variables soportadas por la aplicación:
+
+| Variable | Uso | Valor por defecto |
+|---|---|---|
+| `PORT` | Puerto HTTP del servidor (`application.properties`) | `8080` |
+| `SPRING_DATASOURCE_URL` | URL JDBC de PostgreSQL | `jdbc:postgresql://localhost:5432/zentia_db` |
+| `SPRING_DATASOURCE_USERNAME` | Usuario de PostgreSQL | `postgres` |
+| `SPRING_DATASOURCE_PASSWORD` | Contraseña de PostgreSQL | `base` |
+| `JWT_SECRET` | Clave HMAC-SHA256 para firmar y validar JWT (`JwtUtil.java`) | Clave interna de desarrollo |
+
+> Spring Boot no carga archivos `.env` automáticamente. Antes de ejecutar localmente, exporta las variables en tu shell (ver paso 3) o pásalas con `--env-file .env` en Docker.
+
+### 3. Instalación y ejecución
+
+**Opción A — Local con Maven Wrapper:**
+
+```bash
+# 1. Cargar variables de entorno en la sesión actual (zsh/bash)
+set -a; source .env; set +a
+
+# 2. Compilar y ejecutar la aplicación
+sh mvnw spring-boot:run
+```
+
+*(Si prefieres `./mvnw`, otorga permiso de ejecución una sola vez con `chmod +x mvnw`.)*
+
+Una vez levantado, el portal interactivo de la API queda disponible en `http://localhost:8080/` (`src/main/resources/static/index.html`).
+
+**Opción B — Con Docker:**
+
+```bash
+docker build -t zentia-backend .
+docker run --env-file .env -p 8080:8080 zentia-backend
+```
+
+### 4. Cómo correr las pruebas
+
+El proyecto incluye pruebas unitarias de casos de uso y onboarding (`src/test/java/com/zentia/app/`) que usan Mockito y el adaptador en memoria (`InMemoryTransactionRepositoryAdapter`), por lo que no requieren PostgreSQL activo:
+
+```bash
+sh mvnw test
+```
+
+## Documentación
+
+- **ADRs:** `docs/adr/` *(carpeta pendiente de crear/agregar al repositorio)*
+- **Contexto técnico del backend:** [`docs/BACKEND_CONTEXT.md`](docs/BACKEND_CONTEXT.md)
+- **Documentación de endpoints REST:** [`API_DOCUMENTATION.md`](API_DOCUMENTATION.md)
+- **Video:** https://youtu.be/SrxgnGwO__4
+
+---
+
+# Anexo: Reglas de negocio núcleo
 
 ## Parte 1
 
